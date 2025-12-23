@@ -13,6 +13,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { ASSETS } from "@/lib/assets";
 import { cn } from "@/lib/utils";
 
 type NewsletterData = {
@@ -152,13 +153,13 @@ const FOOTER_LINKS: FooterLinksSection[] = [
 
 const FOOTER_DETAILS = {
 	image: {
-		src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/ecommerce/promotional/Luxurious-Cosmetic-Display-2.png",
+		src: ASSETS.promotional.cosmeticDisplay,
 		alt: "",
 	},
 	homeLink: {
 		logo: {
-			light: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-wordmark.svg",
-			dark: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-wordmark-white.svg",
+			light: ASSETS.logos.store.light,
+			dark: ASSETS.logos.store.dark,
 		},
 		link: "#",
 	},
@@ -168,12 +169,12 @@ const FOOTER_DETAILS = {
 };
 
 const PAYMENT_METHODS = [
-	"https://deifkwefumgah.cloudfront.net/shadcnblocks/block/ecommerce/payment-methods/amazonpay.svg",
-	"https://deifkwefumgah.cloudfront.net/shadcnblocks/block/ecommerce/payment-methods/applepay.svg",
-	"https://deifkwefumgah.cloudfront.net/shadcnblocks/block/ecommerce/payment-methods/mastercard.svg",
-	"https://deifkwefumgah.cloudfront.net/shadcnblocks/block/ecommerce/payment-methods/paypal.svg",
-	"https://deifkwefumgah.cloudfront.net/shadcnblocks/block/ecommerce/payment-methods/visa.svg",
-	"https://deifkwefumgah.cloudfront.net/shadcnblocks/block/ecommerce/payment-methods/discover.svg",
+	ASSETS.paymentMethods.amazonpay,
+	ASSETS.paymentMethods.applepay,
+	ASSETS.paymentMethods.mastercard,
+	ASSETS.paymentMethods.paypal,
+	ASSETS.paymentMethods.visa,
+	ASSETS.paymentMethods.discover,
 ];
 
 const SOCIAL_MEDIA_LINKS: SocialLink[] = [

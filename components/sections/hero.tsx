@@ -2,6 +2,7 @@ import { Github } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ASSETS } from "@/lib/assets";
 import { cn } from "@/lib/utils";
 
 interface HeroProps {
@@ -35,44 +36,38 @@ const Hero = ({ className }: HeroProps) => {
 							<p className="text-center text-sm text-muted-foreground">
 								Powering the next generation of digital products
 							</p>
-							<div className="grid grid-cols-2 place-items-center items-center justify-center gap-6 opacity-80 sm:grid-cols-4 sm:gap-4">
+							<div className="grid grid-cols-3 place-items-center items-center justify-center gap-6 opacity-80 sm:grid-cols-6 sm:gap-4">
 								<Image
-									src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcn-ui-wordmark.svg"
-									alt="ShadCN UI"
-									width={120}
-									height={24}
-									className="h-6 w-auto dark:invert"
+									src={ASSETS.logos.nextjs}
+									alt="Next.js"
+									width={100}
+									height={20}
+									className="h-5 w-auto dark:invert"
 								/>
+								<Image src={ASSETS.logos.stripe} alt="Stripe" width={80} height={32} className="h-8 w-auto" />
 								<Image
-									src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/vercel-wordmark.svg"
+									src={ASSETS.logos.vercel}
 									alt="Vercel"
 									width={100}
 									height={20}
 									className="h-5 w-auto dark:invert"
 								/>
 								<Image
-									src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/supabase-wordmark.svg"
-									alt="Supabase"
+									src={ASSETS.logos.shadcn}
+									alt="ShadCN UI"
 									width={120}
 									height={24}
-									className="h-6 w-auto dark:hidden"
+									className="h-6 w-auto dark:invert"
 								/>
 								<Image
-									src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/supabase-wordmark-dark.svg"
-									alt="Supabase"
-									width={120}
-									height={24}
-									className="hidden h-6 w-auto dark:block"
-								/>
-								<Image
-									src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/tailwind-wordmark-light.svg"
+									src={ASSETS.logos.tailwind.light}
 									alt="Tailwind CSS"
 									width={120}
 									height={20}
 									className="h-5 w-auto dark:hidden"
 								/>
 								<Image
-									src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/tailwind-wordmark-dark.svg"
+									src={ASSETS.logos.tailwind.dark}
 									alt="Tailwind CSS"
 									width={120}
 									height={20}
