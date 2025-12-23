@@ -199,7 +199,7 @@ export async function startCheckout() {
 	}
 
 	const shippingOptions =
-		process.env.STRIPE_SHIPPING_RATE_ID !== undefined
+		process.env.STRIPE_SHIPPING_RATE_ID
 			? [{ shipping_rate: process.env.STRIPE_SHIPPING_RATE_ID }]
 			: [
 					{
