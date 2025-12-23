@@ -30,20 +30,18 @@
     "verbatimModuleSyntax": true,
     "paths": {
       "@/*": [
-        "./*"
+        "./src*"
       ]
     }
   },
   "include": [
-    "./**/*.ts",
-    "./**/*.tsx",
-    "./.next/types/**/*.ts",
-    "./next-env.d.ts",
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    ".next"
+    "node_modules"
   ]
 }

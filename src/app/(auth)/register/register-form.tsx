@@ -1,0 +1,86 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "@//components/ui/button";
+import { Input } from "@//components/ui/input";
+import { authClient } from "@//lib/auth-client";
+
+export function RegisterForm() {
+	const router = useRouter();
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [name, setName] = useState("");
+	const [isPending, setIsPending] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+
+	const handleSubmit = async (event: React.FormEvent) => {
+		event.preventDefault();
+		setIsPending(true);
+		setError(null);
+
+		try {
+			const result = await authClient.signUp.email({
+				email,
+				password,
+				name,
+			});
+			if ("error" in result && result.error) {
+				setError(result.error.message ?? "Unable to register");
+			} else {
+				router.push("/");
+			}
+		} catch {
+			setError("Unable to register. Please try again.");
+		} finally {
+			setIsPending(false);
+		}
+	};
+
+	return (
+		<form onSubmit={handleSubmit} className="space-y-4">
+			<div>
+				<label className="text-sm font-medium text-foreground mb-2 block" htmlFor="name">
+					Name
+				</label>
+				<Input
+					id="name"
+					type="text"
+					value={name}
+					onChange={(e) => setName(e.target.value)}
+					placeholder="Your name"
+				/>
+			</div>
+			<div>
+				<label className="text-sm font-medium text-foreground mb-2 block" htmlFor="email">
+					Email
+				</label>
+				<Input
+					id="email"
+					type="email"
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+					required
+					placeholder="you@example.com"
+				/>
+			</div>
+			<div>
+				<label className="text-sm font-medium text-foreground mb-2 block" htmlFor="password">
+					Password
+				</label>
+				<Input
+					id="password"
+					type="password"
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+					required
+					placeholder="••••••••"
+				/>
+			</div>
+			{error && <p className="text-sm text-destructive">{error}</p>}
+			<Button type="submit" className="w-full" disabled={isPending}>
+				{isPending ? "Creating account..." : "Create account"}
+			</Button>
+		</form>
+	);
+}
