@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { addToCart } from "@/app/cart/actions";
-import { useCart } from "@/features/cart/cart.store";
+import { useCart } from "@/components/cart/use-cart";
 import { formatMoney } from "@/lib/money";
 import { QuantitySelector } from "./quantity-selector";
 import { TrustBadges } from "./trust-badges";
@@ -45,7 +45,9 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 	const [quantity, setQuantity] = useState(1);
 	const [isPending, startTransition] = useTransition();
 	const [error, setError] = useState<string | null>(null);
-	const { openCart, dispatch } = useCart();
+	const openCart = useCart((state) => state.openCart);
+	const add = useCart((state) => state.add);
+	const sync = useCart((state) => state.sync);
 
 	const selectedVariant = useMemo(() => {
 		if (variants.length === 1) {
@@ -90,25 +92,22 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 
 		startTransition(async () => {
 			setError(null);
-			dispatch({
-				type: "ADD_ITEM",
-				item: {
-					quantity,
-					productVariant: {
-						id: selectedVariant.id,
-						price: selectedVariant.price,
-						currency: selectedVariant.currency,
-						images: selectedVariant.images,
-						combinations: selectedVariant.combinations,
-						product,
-					},
+			add({
+				quantity,
+				productVariant: {
+					id: selectedVariant.id,
+					price: selectedVariant.price,
+					currency: selectedVariant.currency,
+					images: selectedVariant.images,
+					combinations: selectedVariant.combinations,
+					product,
 				},
 			});
 
 			const result = await addToCart(selectedVariant.id, quantity);
 
 			if (result?.cart) {
-				dispatch({ type: "SYNC", cart: result.cart });
+				sync(result.cart);
 			}
 
 			if (!result?.success) {

@@ -51,6 +51,7 @@
         "useUniqueElementIds": "off",
         "noUnusedFunctionParameters": "off",
         "noUnusedVariables": "off",
+        "useHookAtTopLevel": "off",
         "noUnusedImports": {
           "options": {},
           "level": "warn",

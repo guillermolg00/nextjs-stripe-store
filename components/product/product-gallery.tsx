@@ -37,7 +37,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
 		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
 			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
 				<Image
-					src={images[selectedIndex]}
+					src={images[selectedIndex]!}
 					alt={`${productName} - View ${selectedIndex + 1}`}
 					fill
 					className={cn(

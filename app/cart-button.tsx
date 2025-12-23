@@ -1,10 +1,16 @@
 "use client";
 
 import { ShoppingCart } from "lucide-react";
-import { useCart } from "@/app/cart/cart-context";
+import { useShallow } from "zustand/shallow";
+import { getItemCount, useCart } from "@/components/cart/use-cart";
 
 export function CartButton() {
-	const { itemCount, openCart } = useCart();
+	const { itemCount, openCart } = useCart(
+		useShallow((state) => ({
+			itemCount: getItemCount(state),
+			openCart: state.openCart,
+		})),
+	);
 
 	return (
 		<button

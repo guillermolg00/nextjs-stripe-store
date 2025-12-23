@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { removeFromCart, setCartQuantity } from "@/app/cart/actions";
 import type { CartLineItem } from "@/app/cart/types";
-import { useCart } from "@/features/cart/cart.store";
+import { useCart } from "@/components/cart/use-cart";
 import { formatMoney } from "@/lib/money";
 
 const locale = process.env.NEXT_PUBLIC_LOCALE ?? "en-US";
@@ -18,7 +18,11 @@ type CartItemProps = {
 
 export function CartItem({ item }: CartItemProps) {
 	const router = useRouter();
-	const { dispatch, closeCart } = useCart();
+	const closeCart = useCart((state) => state.closeCart);
+	const remove = useCart((state) => state.remove);
+	const increase = useCart((state) => state.increase);
+	const decrease = useCart((state) => state.decrease);
+	const sync = useCart((state) => state.sync);
 	const [, startTransition] = useTransition();
 
 	const { productVariant, quantity } = item;
@@ -31,10 +35,10 @@ export function CartItem({ item }: CartItemProps) {
 
 	const handleRemove = () => {
 		startTransition(async () => {
-			dispatch({ type: "REMOVE", variantId: productVariant.id });
+			remove(productVariant.id);
 			const result = await removeFromCart(productVariant.id);
 			if (result) {
-				dispatch({ type: "SYNC", cart: result.cart });
+				sync(result.cart);
 			}
 			router.refresh();
 		});
@@ -42,10 +46,10 @@ export function CartItem({ item }: CartItemProps) {
 
 	const handleIncrement = () => {
 		startTransition(async () => {
-			dispatch({ type: "INCREASE", variantId: productVariant.id });
+			increase(productVariant.id);
 			const result = await setCartQuantity(productVariant.id, quantity + 1);
 			if (result) {
-				dispatch({ type: "SYNC", cart: result.cart });
+				sync(result.cart);
 			}
 			router.refresh();
 		});
@@ -57,10 +61,10 @@ export function CartItem({ item }: CartItemProps) {
 			return;
 		}
 		startTransition(async () => {
-			dispatch({ type: "DECREASE", variantId: productVariant.id });
+			decrease(productVariant.id);
 			const result = await setCartQuantity(productVariant.id, quantity - 1);
 			if (result) {
-				dispatch({ type: "SYNC", cart: result.cart });
+				sync(result.cart);
 			}
 			router.refresh();
 		});

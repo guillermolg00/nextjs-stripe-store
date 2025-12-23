@@ -4,17 +4,25 @@ import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { useShallow } from "zustand/shallow";
 import { startCheckout } from "@/app/cart/actions";
 import { CartItem } from "@/components/cart/cart-item";
+import { getCurrency, getItemCount, getItems, getSubtotal, useCart } from "@/components/cart/use-cart";
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/features/cart/cart.store";
 import { formatMoney } from "@/lib/money";
 
 const locale = process.env.NEXT_PUBLIC_LOCALE ?? "en-US";
 
 export function CartPageClient() {
 	const router = useRouter();
-	const { items, itemCount, subtotal, currency } = useCart();
+	const { items, itemCount, subtotal, currency } = useCart(
+		useShallow((state) => ({
+			items: getItems(state),
+			itemCount: getItemCount(state),
+			subtotal: getSubtotal(state),
+			currency: getCurrency(state),
+		})),
+	);
 	const [isPending, startTransition] = useTransition();
 	const [error, setError] = useState<string | null>(null);
 

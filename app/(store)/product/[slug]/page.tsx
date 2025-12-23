@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductGallery } from "@/components/product/product-gallery";
-import { productService } from "@/features/product/product.service";
+import { commerce } from "@/lib/commerce";
 import { formatMoney } from "@/lib/money";
 import { AddToCartButton } from "./add-to-cart-button";
 import { ProductFeatures } from "./product-features";
@@ -19,7 +19,7 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
 const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
 	"use cache";
 	const { slug } = await params;
-	const product = await productService.getProduct(slug);
+	const product = await commerce.productGet({ idOrSlug: slug });
 
 	if (!product) {
 		notFound();

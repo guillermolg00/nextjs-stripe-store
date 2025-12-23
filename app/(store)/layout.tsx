@@ -1,21 +1,20 @@
-import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { getCart } from "@/app/cart/actions";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
+import { CartInitializer } from "@/components/cart/cart-initializer";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
-import { CartProvider } from "@/features/cart/cart.store";
 import "@/app/globals.css";
 
 async function CartLoader({ children }: { children: React.ReactNode }) {
 	const cart = await getCart();
-	const cartId = cart?.id ?? (await cookies()).get("cartId")?.value ?? null;
 
 	return (
-		<CartProvider initialCart={cart ?? null} initialCartId={cartId}>
+		<>
+			<CartInitializer cart={cart ?? null} />
 			{children}
 			<CartSidebar />
-		</CartProvider>
+		</>
 	);
 }
 
@@ -24,13 +23,15 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
 		<div className="antialiased">
 			<Suspense
 				fallback={
-					<CartProvider initialCart={null} initialCartId={null}>
+					<>
+						<CartInitializer cart={null} />
 						<div className="flex min-h-screen flex-col">
 							<Header />
 							<div className="flex-1">{children}</div>
 							<Footer />
 						</div>
-					</CartProvider>
+						<CartSidebar />
+					</>
 				}
 			>
 				<CartLoader>

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { Product } from "@/features/product/product.types";
+import type { Product } from "@/lib/commerce";
 import { formatMoney } from "@/lib/money";
 
 const locale = process.env.NEXT_PUBLIC_LOCALE ?? "en-US";

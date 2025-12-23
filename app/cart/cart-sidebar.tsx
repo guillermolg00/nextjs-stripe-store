@@ -3,19 +3,26 @@
 import { ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { useShallow } from "zustand/shallow";
 import { startCheckout } from "@/app/cart/actions";
 import { CartItem } from "@/components/cart/cart-item";
+import { getCurrency, getItemCount, getItems, getSubtotal, useCart } from "@/components/cart/use-cart";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useCart } from "@/features/cart/cart.store";
 import { formatMoney } from "@/lib/money";
 
 const locale = process.env.NEXT_PUBLIC_LOCALE ?? "en-US";
 
 export function CartSidebar() {
 	const router = useRouter();
-	const { isOpen, closeCart, items, itemCount, subtotal, currency } = useCart();
+	const isOpen = useCart((state) => state.isOpen);
+	const closeCart = useCart((state) => state.closeCart);
+	const items = useCart(useShallow((state) => getItems(state)));
+	const itemCount = useCart(useShallow((state) => getItemCount(state)));
+	const subtotal = useCart(useShallow((state) => getSubtotal(state)));
+	const currency = useCart(useShallow((state) => getCurrency(state)));
+
 	const [isPending, startTransition] = useTransition();
 	const [error, setError] = useState<string | null>(null);
 

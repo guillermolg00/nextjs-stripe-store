@@ -2,8 +2,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
-import { productService } from "@/features/product/product.service";
-import type { Collection } from "@/features/product/product.types";
+import { type Collection, commerce } from "@/lib/commerce";
 
 function CollectionHeader({ collection }: { collection: Collection }) {
 	return (
@@ -69,7 +68,7 @@ function CollectionProducts({ collection }: { collection: Collection }) {
 
 export default async function CategoryPage(props: PageProps<"/category/[slug]">) {
 	const { slug } = await props.params;
-	const collection = await productService.getCollection(slug);
+	const collection = await commerce.collectionGet({ idOrSlug: slug });
 
 	if (!collection) {
 		notFound();
