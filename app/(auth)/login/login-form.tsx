@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signInEmail } from "@/features/auth/auth.hooks";
+import { authClient } from "@/lib/auth-client";
 
 export function LoginForm() {
 	const router = useRouter();
@@ -19,7 +19,10 @@ export function LoginForm() {
 		setError(null);
 
 		try {
-			const result = await signInEmail(email, password);
+			const result = await authClient.signIn.email({
+				email,
+				password,
+			});
 			if ("error" in result && result.error) {
 				setError(result.error.message ?? "Unable to sign in");
 			} else {

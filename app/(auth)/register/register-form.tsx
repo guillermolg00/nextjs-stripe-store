@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signUpEmail } from "@/features/auth/auth.hooks";
+import { authClient } from "@/lib/auth-client";
 
 export function RegisterForm() {
 	const router = useRouter();
@@ -20,7 +20,11 @@ export function RegisterForm() {
 		setError(null);
 
 		try {
-			const result = await signUpEmail(email, password, name);
+			const result = await authClient.signUp.email({
+				email,
+				password,
+				name,
+			});
 			if ("error" in result && result.error) {
 				setError(result.error.message ?? "Unable to register");
 			} else {

@@ -1,7 +1,6 @@
-import { type MemoryDB, memoryAdapter } from "better-auth/adapters/memory-adapter";
+"server-only";
 import { betterAuth } from "better-auth/minimal";
-
-const memoryDb: MemoryDB = {};
+import { Pool } from "pg";
 
 const authSecret =
 	process.env.BETTER_AUTH_SECRET ??
@@ -11,7 +10,9 @@ const authSecret =
 export const auth = betterAuth({
 	baseURL: process.env.NEXT_PUBLIC_ROOT_URL ?? "http://localhost:3000",
 	secret: authSecret,
-	database: memoryAdapter(memoryDb),
+	database: new Pool({
+		connectionString: process.env.DATABASE_URL,
+	}),
 	emailAndPassword: {
 		enabled: true,
 	},
