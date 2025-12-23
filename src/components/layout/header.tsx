@@ -4,11 +4,12 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { CartButton } from "@//app/cart-button";
 import { commerce } from "@//lib/commerce";
+import { NavUser, NavUserFallback } from "./nav-user";
 
 function CartButtonFallback() {
 	return (
-		<div className="p-2 rounded-full w-10 h-10" aria-description="Loading cart">
-			<ShoppingCartIcon className="w-6 h-6 opacity-20" />
+		<div className="h-10 w-10 rounded-full p-2" aria-description="Loading cart">
+			<ShoppingCartIcon className="h-6 w-6 opacity-20" />
 		</div>
 	);
 }
@@ -20,10 +21,10 @@ async function NavLinks() {
 	const collections = await commerce.collectionBrowse({ limit: 5 });
 
 	return (
-		<nav className="hidden md:flex items-center gap-6">
+		<nav className="hidden items-center gap-6 md:flex">
 			<Link
 				href="/"
-				className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+				className="font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
 			>
 				Home
 			</Link>
@@ -31,7 +32,7 @@ async function NavLinks() {
 				<Link
 					key={collection.id}
 					href={`/category/${collection.slug}`}
-					className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+					className="font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
 				>
 					{collection.name}
 				</Link>
@@ -42,20 +43,26 @@ async function NavLinks() {
 
 export async function Header() {
 	return (
-		<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="flex items-center justify-between h-16">
+		<header className="sticky top-0 z-50 border-border border-b bg-background/80 backdrop-blur-md">
+			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+				<div className="flex h-16 items-center justify-between">
 					<div className="flex items-center gap-8">
-						<Link href="/" className="text-xl font-bold">
+						<Link href="/" className="font-bold text-xl">
 							Next Stripe Store
 						</Link>
 						<Suspense>
 							<NavLinks />
 						</Suspense>
 					</div>
-					<Suspense fallback={<CartButtonFallback />}>
-						<CartButton />
-					</Suspense>
+
+					<div className="flex items-center gap-4">
+						<Suspense fallback={<CartButtonFallback />}>
+							<CartButton />
+						</Suspense>
+						<Suspense fallback={<NavUserFallback />}>
+							<NavUser />
+						</Suspense>
+					</div>
 				</div>
 			</div>
 		</header>

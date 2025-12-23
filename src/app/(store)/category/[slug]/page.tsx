@@ -7,20 +7,22 @@ import { type Collection, commerce } from "@//lib/commerce";
 function CollectionHeader({ collection }: { collection: Collection }) {
 	return (
 		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div className="py-12 sm:py-16 lg:py-20">
 					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
+						<h1 className="font-medium text-3xl text-foreground tracking-tight sm:text-4xl lg:text-5xl">
 							{collection.name}
 						</h1>
 						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
+							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
+								{collection.description}
+							</p>
 						)}
 					</div>
 				</div>
 			</div>
 			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
+				<div className="absolute top-0 right-0 hidden h-full w-1/2 lg:block">
 					<Image
 						src={collection.image}
 						alt={collection.name}
@@ -37,14 +39,14 @@ function CollectionHeader({ collection }: { collection: Collection }) {
 
 function ProductGridSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+		<section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+			<div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
 				{Array.from({ length: 6 }).map((_, i) => (
 					<div key={`skeleton-${i}`}>
-						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
+						<div className="mb-4 aspect-square animate-pulse rounded-2xl bg-secondary" />
 						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+							<div className="h-5 w-3/4 animate-pulse rounded bg-secondary" />
+							<div className="h-5 w-1/4 animate-pulse rounded bg-secondary" />
 						</div>
 					</div>
 				))}
@@ -66,7 +68,9 @@ function CollectionProducts({ collection }: { collection: Collection }) {
 	);
 }
 
-export default async function CategoryPage(props: PageProps<"/category/[slug]">) {
+export default async function CategoryPage(
+	props: PageProps<"/category/[slug]">,
+) {
 	const { slug } = await props.params;
 	const collection = await commerce.collectionGet({ idOrSlug: slug });
 

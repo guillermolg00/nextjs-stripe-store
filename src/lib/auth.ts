@@ -1,6 +1,8 @@
 "server-only";
-import { betterAuth } from "better-auth/minimal";
-import { Pool } from "pg";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { db } from "../db/db";
+import { account, session, users, verification } from "../db/schema";
 
 const authSecret =
 	process.env.BETTER_AUTH_SECRET ??
@@ -10,8 +12,14 @@ const authSecret =
 export const auth = betterAuth({
 	baseURL: process.env.NEXT_PUBLIC_ROOT_URL ?? "http://localhost:3000",
 	secret: authSecret,
-	database: new Pool({
-		connectionString: process.env.DATABASE_URL,
+	database: drizzleAdapter(db, {
+		provider: "pg",
+		schema: {
+			user: users,
+			session,
+			account,
+			verification,
+		},
 	}),
 	emailAndPassword: {
 		enabled: true,

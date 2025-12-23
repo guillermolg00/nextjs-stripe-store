@@ -1,14 +1,25 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import type { Cart, CartLineItem } from "@//app/cart/types";
+import { auth } from "@//lib/auth";
 import { commerce, stripe } from "@//lib/commerce";
 
 const CART_COOKIE_NAME = "cart";
 const CART_ID_COOKIE = "cartId";
 const CART_TTL = 60 * 60 * 24 * 30; // 30 days
-const allowedShippingCountries = ["US", "CA", "GB", "DE", "FR", "ES", "IT", "NL", "AU"] as const;
+const allowedShippingCountries = [
+	"US",
+	"CA",
+	"GB",
+	"DE",
+	"FR",
+	"ES",
+	"IT",
+	"NL",
+	"AU",
+] as const;
 
 type StoredCart = {
 	id: string;
@@ -69,7 +80,9 @@ const persistCart = async (cart: StoredCart) => {
 	});
 };
 
-const buildCart = async (storedCart: StoredCart | null): Promise<Cart | null> => {
+const buildCart = async (
+	storedCart: StoredCart | null,
+): Promise<Cart | null> => {
 	if (!storedCart) {
 		return null;
 	}
@@ -98,7 +111,8 @@ const buildCart = async (storedCart: StoredCart | null): Promise<Cart | null> =>
 	);
 
 	const validItems = items.filter(Boolean) as CartLineItem[];
-	const currency = storedCart.currency ?? validItems[0]?.productVariant.currency ?? "USD";
+	const currency =
+		storedCart.currency ?? validItems[0]?.productVariant.currency ?? "USD";
 
 	return {
 		id: storedCart.id,
@@ -131,7 +145,11 @@ export async function addToCart(variantId: string, quantity = 1) {
 	const { variant } = variantWithProduct;
 
 	if (!ensureCurrency(storedCart, variant.currency)) {
-		return { success: false, cart: null, error: "Mixed currency carts are not supported" };
+		return {
+			success: false,
+			cart: null,
+			error: "Mixed currency carts are not supported",
+		};
 	}
 
 	const newCart: StoredCart = storedCart ?? {
@@ -160,7 +178,9 @@ export async function removeFromCart(variantId: string) {
 		return { success: false, cart: null };
 	}
 
-	const filteredItems = storedCart.items.filter((item) => item.priceId !== variantId);
+	const filteredItems = storedCart.items.filter(
+		(item) => item.priceId !== variantId,
+	);
 	const updatedCart = { ...storedCart, items: filteredItems };
 
 	await persistCart(updatedCart);
@@ -192,6 +212,9 @@ export async function setCartQuantity(variantId: string, quantity: number) {
 }
 
 export async function startCheckout() {
+	const userSession = await auth.api.getSession({
+		headers: await headers(),
+	});
 	const cart = await getCart();
 
 	if (!cart || cart.lineItems.length === 0) {
@@ -223,6 +246,7 @@ export async function startCheckout() {
 				price: item.productVariant.id,
 				quantity: item.quantity,
 			})),
+			customer_email: userSession?.user?.email ?? undefined,
 			success_url: successUrl,
 			cancel_url: cancelUrl,
 			automatic_tax: { enabled: true },
