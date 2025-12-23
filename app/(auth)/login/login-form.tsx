@@ -1,0 +1,69 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { signInEmail } from "@/features/auth/auth.hooks";
+
+export function LoginForm() {
+	const router = useRouter();
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [isPending, setIsPending] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+
+	const handleSubmit = async (event: React.FormEvent) => {
+		event.preventDefault();
+		setIsPending(true);
+		setError(null);
+
+		try {
+			const result = await signInEmail(email, password);
+			if ("error" in result && result.error) {
+				setError(result.error.message ?? "Unable to sign in");
+			} else {
+				router.push("/");
+			}
+		} catch {
+			setError("Unable to sign in. Please try again.");
+		} finally {
+			setIsPending(false);
+		}
+	};
+
+	return (
+		<form onSubmit={handleSubmit} className="space-y-4">
+			<div>
+				<label className="text-sm font-medium text-foreground mb-2 block" htmlFor="email">
+					Email
+				</label>
+				<Input
+					id="email"
+					type="email"
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+					required
+					placeholder="you@example.com"
+				/>
+			</div>
+			<div>
+				<label className="text-sm font-medium text-foreground mb-2 block" htmlFor="password">
+					Password
+				</label>
+				<Input
+					id="password"
+					type="password"
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+					required
+					placeholder="••••••••"
+				/>
+			</div>
+			{error && <p className="text-sm text-destructive">{error}</p>}
+			<Button type="submit" className="w-full" disabled={isPending}>
+				{isPending ? "Signing in..." : "Sign In"}
+			</Button>
+		</form>
+	);
+}

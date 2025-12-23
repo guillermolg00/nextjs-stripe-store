@@ -1,0 +1,100 @@
+"use client";
+
+import { ShoppingBag } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { startCheckout } from "@/app/cart/actions";
+import { CartItem } from "@/components/cart/cart-item";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useCart } from "@/features/cart/cart.store";
+import { formatMoney } from "@/lib/money";
+
+const locale = process.env.NEXT_PUBLIC_LOCALE ?? "en-US";
+
+export function CartSidebar() {
+	const router = useRouter();
+	const { isOpen, closeCart, items, itemCount, subtotal, currency } = useCart();
+	const [isPending, startTransition] = useTransition();
+	const [error, setError] = useState<string | null>(null);
+
+	const handleCheckout = () => {
+		setError(null);
+		startTransition(async () => {
+			const result = await startCheckout();
+
+			if (result?.success && result.url) {
+				router.push(result.url);
+				return;
+			}
+
+			setError("Unable to start checkout. Please try again.");
+		});
+	};
+
+	return (
+		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
+			<SheetContent className="flex flex-col w-full sm:max-w-lg">
+				<SheetHeader className="border-b border-border pb-4">
+					<SheetTitle className="flex items-center gap-2">
+						Your Cart
+						{itemCount > 0 && (
+							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
+						)}
+					</SheetTitle>
+				</SheetHeader>
+
+				{items.length === 0 ? (
+					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
+						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
+							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
+						</div>
+						<div className="text-center">
+							<p className="text-lg font-medium">Your cart is empty</p>
+							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
+						</div>
+						<Button variant="outline" onClick={closeCart}>
+							Continue Shopping
+						</Button>
+					</div>
+				) : (
+					<>
+						<ScrollArea className="flex-1 px-4">
+							<div className="divide-y divide-border">
+								{items.map((item) => (
+									<CartItem key={item.productVariant.id} item={item} />
+								))}
+							</div>
+						</ScrollArea>
+
+						<SheetFooter className="border-t border-border pt-4 mt-auto">
+							<div className="w-full space-y-4">
+								<div className="flex items-center justify-between text-base">
+									<span className="font-medium">Subtotal</span>
+									<span className="font-semibold">{formatMoney({ amount: subtotal, currency, locale })}</span>
+								</div>
+								<p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout</p>
+								<Button
+									className="w-full h-12 text-base font-medium"
+									onClick={handleCheckout}
+									disabled={items.length === 0 || isPending}
+								>
+									{isPending ? "Redirecting..." : "Checkout"}
+								</Button>
+								{error && <p className="text-xs text-destructive">{error}</p>}
+								<button
+									type="button"
+									onClick={closeCart}
+									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+								>
+									Continue Shopping
+								</button>
+							</div>
+						</SheetFooter>
+					</>
+				)}
+			</SheetContent>
+		</Sheet>
+	);
+}
