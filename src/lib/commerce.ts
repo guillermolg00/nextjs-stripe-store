@@ -1,5 +1,14 @@
+import { and, desc, eq, isNotNull, or } from "drizzle-orm";
 import Stripe from "stripe";
+import { db } from "@/db/db";
+import {
+	collections as collectionsTable,
+	products as productsTable,
+	productVariants,
+	type VariantOption,
+} from "@/db/schema";
 import { invariant } from "./invariant";
+import { slugify } from "./utils";
 
 type VariantValue = {
 	id: string;
@@ -13,7 +22,7 @@ type VariantValue = {
 };
 
 export type ProductVariant = {
-	id: string;
+	id: string; // This is stripePriceId for cart/checkout compatibility
 	price: string;
 	currency: string;
 	images: string[];
@@ -52,216 +61,239 @@ invariant(stripeSecretKey, "Missing env.STRIPE_SECRET_KEY");
 
 export const stripe = new Stripe(stripeSecretKey);
 
-const slugify = (value: string) =>
-	value
-		.trim()
-		.toLowerCase()
-		.replace(/[^a-z0-9\s-]/g, "")
-		.replace(/\s+/g, "-")
-		.replace(/-+/g, "-");
-
-const humanizeLabel = (value: string) =>
-	value
-		.replace(/^option[_-]?/i, "")
-		.replace(/[_-]+/g, " ")
-		.replace(/\b\w/g, (char) => char.toUpperCase())
-		.trim();
-
-const parseCollections = (metadata: Stripe.Metadata) => {
-	const raw = metadata.collection ?? metadata.collections ?? "";
-	return raw
-		.split(",")
-		.map((entry) => entry.trim())
-		.filter(Boolean)
-		.map((name) => ({
-			name,
-			slug: slugify(name),
-			image: metadata.collection_image ?? metadata.image ?? null,
-			description: metadata.collection_description ?? null,
-		}));
+type DbProduct = typeof productsTable.$inferSelect & {
+	variants: (typeof productVariants.$inferSelect)[];
+	productCollections: {
+		collection: typeof collectionsTable.$inferSelect;
+	}[];
 };
 
-const getVariantCombinations = (metadata: Stripe.Metadata, priceId: string): VariantValue[] => {
-	const optionEntries = Object.entries(metadata ?? {}).filter(
-		([key, value]) => key.startsWith("option") && value,
-	);
+type DbVariant = typeof productVariants.$inferSelect;
 
-	return optionEntries.map(([key, value]) => {
-		const isColor = typeof value === "string" && value.startsWith("#");
-
-		return {
-			id: `${priceId}-${key}`,
-			value: String(value),
-			colorValue: isColor ? String(value) : null,
+const mapOptionsToVariantValues = (
+	options: VariantOption[],
+	stripePriceId: string,
+): { variantValue: VariantValue }[] => {
+	return options.map((opt) => ({
+		variantValue: {
+			id: `${stripePriceId}-${opt.key}`,
+			value: opt.value,
+			colorValue: opt.type === "color" ? (opt.colorValue ?? opt.value) : null,
 			variantType: {
-				id: key,
-				type: isColor ? "color" : "string",
-				label: humanizeLabel(key),
+				id: opt.key,
+				type: opt.type,
+				label: opt.label,
 			},
-		};
-	});
+		},
+	}));
 };
 
-const mapPriceToVariant = (price: Stripe.Price, images: string[]): ProductVariant => ({
-	id: price.id,
-	price: String(price.unit_amount ?? 0),
-	currency: price.currency.toUpperCase(),
-	images: price.metadata.image ? [price.metadata.image] : images,
-	combinations: getVariantCombinations(price.metadata, price.id).map((variantValue) => ({ variantValue })),
-});
-
-const mapProduct = (product: Stripe.Product, prices: Stripe.Price[]): Product => {
-	const productImages = product.images ?? [];
-	const variants = prices.map((price) => mapPriceToVariant(price, productImages));
+const mapDbVariantToProductVariant = (
+	variant: DbVariant,
+): ProductVariant | null => {
+	// Only expose variants that are synced and have a stripePriceId
+	if (
+		!variant.stripePriceId ||
+		variant.syncStatus !== "synced" ||
+		!variant.active
+	) {
+		return null;
+	}
 
 	return {
-		id: product.id,
-		slug: product.metadata.slug ? slugify(product.metadata.slug) : slugify(product.name ?? product.id),
-		name: product.name,
-		description: product.description ?? null,
-		summary: product.metadata.summary ?? product.description ?? null,
-		images: productImages,
-		variants,
-		collections: parseCollections(product.metadata),
+		id: variant.stripePriceId,
+		price: variant.price,
+		currency: variant.currency,
+		images: variant.images ?? [],
+		combinations: mapOptionsToVariantValues(
+			variant.options ?? [],
+			variant.stripePriceId,
+		),
 	};
 };
 
-const fetchProductPrices = async (productId: string) => {
-	const prices = await stripe.prices.list({
-		product: productId,
-		active: true,
-		limit: 100,
-	});
-	return prices.data.filter((price) => !price.deleted);
-};
+const mapDbProductToProduct = (dbProduct: DbProduct): Product => {
+	const validVariants = dbProduct.variants
+		.map(mapDbVariantToProductVariant)
+		.filter((v): v is ProductVariant => v !== null);
 
-const searchProductBySlug = async (slug: string) => {
-	// First try to find by metadata slug
-	const metadataQuery = `active:'true' AND metadata['slug']:'${slug}'`;
-	const metadataResult = await stripe.products.search({
-		query: metadataQuery,
-		limit: 1,
-	});
-
-	if (metadataResult.data[0]) {
-		return metadataResult.data[0];
-	}
-
-	// If not found by metadata, search all products and match by slugified name
-	const products = await stripe.products.list({
-		active: true,
-		limit: 100,
-	});
-
-	return (
-		products.data.find((product) => {
-			const productSlug = product.metadata.slug
-				? slugify(product.metadata.slug)
-				: slugify(product.name ?? product.id);
-			return productSlug === slug;
-		}) ?? null
-	);
-};
-
-const buildProduct = async (product: Stripe.Product) => {
-	const prices = await fetchProductPrices(product.id);
-	return mapProduct(product, prices);
-};
-
-const getProductInternal = async (idOrSlug: string) => {
-	try {
-		const product = await stripe.products.retrieve(idOrSlug, {
-			expand: ["default_price"],
-		});
-
-		if (product && !("deleted" in product)) {
-			return product;
-		}
-	} catch {
-		// fall back to search by slug
-	}
-
-	return searchProductBySlug(slugify(idOrSlug));
+	return {
+		id: dbProduct.id,
+		slug: dbProduct.slug,
+		name: dbProduct.name,
+		description: dbProduct.description,
+		summary: dbProduct.summary,
+		images: dbProduct.images ?? [],
+		variants: validVariants,
+		collections: dbProduct.productCollections.map((pc) => ({
+			slug: pc.collection.slug,
+			name: pc.collection.name,
+			image: pc.collection.image,
+			description: pc.collection.description,
+		})),
+	};
 };
 
 const productBrowse = async ({ limit = 12 }: { limit?: number }) => {
-	const products = await stripe.products.list({
-		active: true,
+	const data = await db.query.products.findMany({
+		where: eq(productsTable.active, true),
 		limit,
-		expand: ["data.default_price"],
+		with: {
+			variants: true,
+			productCollections: {
+				with: { collection: true },
+			},
+		},
+		orderBy: [desc(productsTable.createdAt)],
 	});
 
-	const hydrated = await Promise.all(
-		products.data.filter((product): product is Stripe.Product => !("deleted" in product)).map(buildProduct),
-	);
+	const products = data
+		.map(mapDbProductToProduct)
+		.filter((p) => p.variants.length > 0);
 
-	return { data: hydrated };
+	return { data: products };
 };
 
 const productGet = async ({ idOrSlug }: { idOrSlug: string }) => {
-	const product = await getProductInternal(idOrSlug);
-	if (!product || "deleted" in product) {
+	const normalizedSlug = slugify(idOrSlug);
+
+	const product = await db.query.products.findFirst({
+		where: and(
+			eq(productsTable.active, true),
+			or(
+				eq(productsTable.id, idOrSlug),
+				eq(productsTable.slug, normalizedSlug),
+				eq(productsTable.stripeProductId, idOrSlug),
+			),
+		),
+		with: {
+			variants: true,
+			productCollections: {
+				with: { collection: true },
+			},
+		},
+	});
+
+	if (!product) {
 		return null;
 	}
 
-	return buildProduct(product);
+	const mapped = mapDbProductToProduct(product);
+
+	if (mapped.variants.length === 0) {
+		return null;
+	}
+
+	return mapped;
 };
 
 const collectionBrowse = async ({ limit = 5 }: { limit?: number }) => {
-	const { data: products } = await productBrowse({ limit: 100 });
+	const collectionsData = await db.query.collections.findMany({
+		limit: limit ?? undefined,
+		with: {
+			productCollections: {
+				with: {
+					product: {
+						with: {
+							variants: true,
+							productCollections: {
+								with: { collection: true },
+							},
+						},
+					},
+				},
+			},
+		},
+		orderBy: [desc(collectionsTable.createdAt)],
+	});
 
-	const collectionMap = products.reduce((acc, product) => {
-		product.collections.forEach((collection) => {
-			if (!acc.has(collection.slug)) {
-				acc.set(collection.slug, {
-					id: collection.slug,
-					slug: collection.slug,
-					name: collection.name,
-					description: collection.description ?? null,
-					image: collection.image ?? null,
-					products: [],
-				});
-			}
+	const collections: Collection[] = collectionsData.map((coll) => ({
+		id: coll.id,
+		slug: coll.slug,
+		name: coll.name,
+		description: coll.description,
+		image: coll.image,
+		products: coll.productCollections
+			.filter((pc) => pc.product.active)
+			.map((pc) => mapDbProductToProduct(pc.product as DbProduct))
+			.filter((p) => p.variants.length > 0),
+	}));
 
-			const existing = acc.get(collection.slug);
-			if (existing) {
-				existing.products.push(product);
-			}
-		});
-		return acc;
-	}, new Map<string, Collection>());
-
-	const collections = Array.from(collectionMap.values());
-	return { data: typeof limit === "number" ? collections.slice(0, limit) : collections };
+	return { data: collections.filter((c) => c.products.length > 0) };
 };
 
 const collectionGet = async ({ idOrSlug }: { idOrSlug: string }) => {
-	const slug = slugify(idOrSlug);
-	const { data: collections } = await collectionBrowse({ limit: undefined });
-	return collections.find((collection) => collection.slug === slug) ?? null;
+	const normalizedSlug = slugify(idOrSlug);
+
+	const collection = await db.query.collections.findFirst({
+		where: or(
+			eq(collectionsTable.id, idOrSlug),
+			eq(collectionsTable.slug, normalizedSlug),
+		),
+		with: {
+			productCollections: {
+				with: {
+					product: {
+						with: {
+							variants: true,
+							productCollections: {
+								with: { collection: true },
+							},
+						},
+					},
+				},
+			},
+		},
+	});
+
+	if (!collection) {
+		return null;
+	}
+
+	return {
+		id: collection.id,
+		slug: collection.slug,
+		name: collection.name,
+		description: collection.description,
+		image: collection.image,
+		products: collection.productCollections
+			.filter((pc) => pc.product.active)
+			.map((pc) => mapDbProductToProduct(pc.product as DbProduct))
+			.filter((p) => p.variants.length > 0),
+	} satisfies Collection;
 };
 
 const getVariantWithProduct = async (variantId: string) => {
-	try {
-		const price = await stripe.prices.retrieve(variantId, {
-			expand: ["product"],
-		});
+	const variant = await db.query.productVariants.findFirst({
+		where: and(
+			eq(productVariants.stripePriceId, variantId),
+			eq(productVariants.syncStatus, "synced"),
+			isNotNull(productVariants.stripePriceId),
+		),
+		with: {
+			product: {
+				with: {
+					variants: true,
+					productCollections: {
+						with: { collection: true },
+					},
+				},
+			},
+		},
+	});
 
-		if (!price || price.deleted || !price.product || typeof price.product === "string") {
-			return null;
-		}
-
-		const product = await buildProduct(price.product);
-		const variant = product.variants.find((v) => v.id === variantId);
-
-		if (!variant) {
-			return null;
-		}
-
-		return { product, variant };
-	} catch {
+	if (!variant || !variant.product.active) {
 		return null;
 	}
+
+	const product = mapDbProductToProduct(variant.product as DbProduct);
+	const mappedVariant = product.variants.find((v) => v.id === variantId);
+
+	if (!mappedVariant) {
+		return null;
+	}
+
+	return { product, variant: mappedVariant };
 };
 
 export const commerce = {

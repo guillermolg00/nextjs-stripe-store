@@ -1,12 +1,16 @@
+import { relations } from "drizzle-orm";
 import {
 	boolean,
 	integer,
 	jsonb,
 	pgTable,
+	primaryKey,
 	text,
 	timestamp,
 	varchar,
 } from "drizzle-orm/pg-core";
+
+export type UserRole = "USER" | "ADMIN";
 
 export const users = pgTable("users", {
 	id: text().primaryKey().notNull(),
@@ -14,6 +18,7 @@ export const users = pgTable("users", {
 	email: varchar({ length: 255 }).notNull().unique(),
 	emailVerified: boolean("email_verified").notNull(),
 	image: text("image"),
+	role: text().$type<UserRole>().notNull().default("USER"),
 	createdAt: timestamp("created_at").notNull(),
 	updatedAt: timestamp("updated_at").notNull(),
 });
@@ -117,3 +122,108 @@ export const orderItems = pgTable("order_items", {
 	total: text().notNull(),
 	currency: text().notNull(),
 });
+
+export type SyncStatus = "pending" | "synced" | "error";
+
+export type VariantOption = {
+	key: string; // e.g. "option_color"
+	label: string; // e.g. "Color"
+	value: string; // e.g. "#FF0000" or "XL"
+	type: "string" | "color";
+	colorValue?: string | null; // if type === "color"
+};
+
+export const products = pgTable("products", {
+	id: text().primaryKey().notNull(),
+	stripeProductId: text("stripe_product_id").unique(),
+	slug: text().notNull().unique(),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	summary: text(),
+	images: jsonb().$type<string[]>().default([]),
+	active: boolean().notNull().default(true),
+	metadata: jsonb().$type<Record<string, string>>(),
+	syncStatus: text("sync_status")
+		.$type<SyncStatus>()
+		.notNull()
+		.default("pending"),
+	lastSyncedAt: timestamp("last_synced_at"),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const productVariants = pgTable("product_variants", {
+	id: text().primaryKey().notNull(),
+	stripePriceId: text("stripe_price_id").unique(),
+	productId: text("product_id")
+		.notNull()
+		.references(() => products.id, { onDelete: "cascade" }),
+	price: text().notNull(), // minor units as string (BigInt compatible)
+	currency: text().notNull().default("USD"), // uppercase
+	images: jsonb().$type<string[]>().default([]),
+	options: jsonb().$type<VariantOption[]>().default([]),
+	active: boolean().notNull().default(true),
+	syncStatus: text("sync_status")
+		.$type<SyncStatus>()
+		.notNull()
+		.default("pending"),
+	lastSyncedAt: timestamp("last_synced_at"),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const collections = pgTable("collections", {
+	id: text().primaryKey().notNull(),
+	slug: text().notNull().unique(),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	image: text(),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const productCollections = pgTable(
+	"product_collections",
+	{
+		productId: text("product_id")
+			.notNull()
+			.references(() => products.id, { onDelete: "cascade" }),
+		collectionId: text("collection_id")
+			.notNull()
+			.references(() => collections.id, { onDelete: "cascade" }),
+	},
+	(table) => [primaryKey({ columns: [table.productId, table.collectionId] })],
+);
+
+export const productsRelations = relations(products, ({ many }) => ({
+	variants: many(productVariants),
+	productCollections: many(productCollections),
+}));
+
+export const productVariantsRelations = relations(
+	productVariants,
+	({ one }) => ({
+		product: one(products, {
+			fields: [productVariants.productId],
+			references: [products.id],
+		}),
+	}),
+);
+
+export const collectionsRelations = relations(collections, ({ many }) => ({
+	productCollections: many(productCollections),
+}));
+
+export const productCollectionsRelations = relations(
+	productCollections,
+	({ one }) => ({
+		product: one(products, {
+			fields: [productCollections.productId],
+			references: [products.id],
+		}),
+		collection: one(collections, {
+			fields: [productCollections.collectionId],
+			references: [collections.id],
+		}),
+	}),
+);

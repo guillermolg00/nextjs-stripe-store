@@ -38,7 +38,10 @@ export function LoginForm() {
 	return (
 		<form onSubmit={handleSubmit} className="space-y-4">
 			<div>
-				<label className="text-sm font-medium text-foreground mb-2 block" htmlFor="email">
+				<label
+					className="mb-2 block font-medium text-foreground text-sm"
+					htmlFor="email"
+				>
 					Email
 				</label>
 				<Input
@@ -51,7 +54,10 @@ export function LoginForm() {
 				/>
 			</div>
 			<div>
-				<label className="text-sm font-medium text-foreground mb-2 block" htmlFor="password">
+				<label
+					className="mb-2 block font-medium text-foreground text-sm"
+					htmlFor="password"
+				>
 					Password
 				</label>
 				<Input
@@ -63,7 +69,7 @@ export function LoginForm() {
 					placeholder="••••••••"
 				/>
 			</div>
-			{error && <p className="text-sm text-destructive">{error}</p>}
+			{error && <p className="text-destructive text-sm">{error}</p>}
 			<Button type="submit" className="w-full" disabled={isPending}>
 				{isPending ? "Signing in..." : "Sign In"}
 			</Button>

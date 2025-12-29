@@ -13,6 +13,7 @@ const nextConfig = {
 			{ hostname: "*.blob.vercel-storage.com" },
 			{ hostname: "files.stripe.com" },
 			{ hostname: "deifkwefumgah.cloudfront.net" },
+			{ hostname: "media.istockphoto.com" },
 		],
 	},
 };

@@ -26,7 +26,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
 	if (images.length === 0) {
 		return (
 			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
+				<div className="flex aspect-square items-center justify-center rounded-2xl bg-secondary">
 					<p className="text-muted-foreground">No images available</p>
 				</div>
 			</div>
@@ -49,7 +49,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
 				/>
 
 				{images.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
+					<div className="-translate-y-1/2 absolute inset-x-4 top-1/2 flex justify-between opacity-0 transition-opacity group-hover:opacity-100">
 						<Button
 							variant="secondary"
 							size="icon"
@@ -75,22 +75,22 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
 					</div>
 				)}
 
-				<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-					<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+				<div className="absolute right-4 bottom-4 opacity-0 transition-opacity group-hover:opacity-100">
+					<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 font-medium text-xs backdrop-blur-sm">
 						<ZoomIn className="h-3.5 w-3.5" />
 						Click to zoom
 					</div>
 				</div>
 
 				{images.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 font-medium text-xs backdrop-blur-sm">
 						{selectedIndex + 1} / {images.length}
 					</div>
 				)}
 			</div>
 
 			{images.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
+				<div className="-m-2 flex gap-3 overflow-x-auto p-2">
 					{images.map((image, index) => (
 						<button
 							key={image}
