@@ -1,10 +1,13 @@
-export type OrderStatus = "created" | "paid" | "fulfilled" | "cancelled" | "refunded";
+// Re-export types from schema and orders service for convenience
+export type {
+	OrderStatus,
+	ShippingAddress,
+	VariantInfo,
+} from "@/db/schema";
 
-export type Order = {
-	id: string;
-	status: OrderStatus;
-	total: string;
-	currency: string;
-	createdAt: string;
-	updatedAt: string;
-};
+export type { OrderWithItems } from "@/lib/orders";
+
+import type { orderItems, orders } from "@/db/schema";
+
+export type Order = typeof orders.$inferSelect;
+export type OrderItem = typeof orderItems.$inferSelect;

@@ -30,7 +30,7 @@
     "verbatimModuleSyntax": true,
     "paths": {
       "@/*": [
-        "./src*"
+        "./src/*"
       ]
     }
   },

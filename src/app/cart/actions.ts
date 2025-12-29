@@ -211,6 +211,13 @@ export async function setCartQuantity(variantId: string, quantity: number) {
 	return { success: true, cart: hydratedCart };
 }
 
+export async function clearCart() {
+	const cookieStore = await cookies();
+	cookieStore.delete(CART_COOKIE_NAME);
+	cookieStore.delete(CART_ID_COOKIE);
+	return { success: true };
+}
+
 export async function startCheckout() {
 	const userSession = await auth.api.getSession({
 		headers: await headers(),
@@ -236,8 +243,9 @@ export async function startCheckout() {
 				},
 			];
 
-	const successUrl = `${process.env.NEXT_PUBLIC_ROOT_URL ?? "http://localhost:3000"}/checkout/success`;
-	const cancelUrl = `${process.env.NEXT_PUBLIC_ROOT_URL ?? "http://localhost:3000"}/checkout/cancel`;
+	const baseUrl = process.env.NEXT_PUBLIC_ROOT_URL ?? "http://localhost:3000";
+	const successUrl = `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
+	const cancelUrl = `${baseUrl}/checkout/cancel`;
 
 	try {
 		const session = await stripe.checkout.sessions.create({
@@ -246,7 +254,11 @@ export async function startCheckout() {
 				price: item.productVariant.id,
 				quantity: item.quantity,
 			})),
+			client_reference_id: userSession?.user?.id ?? undefined,
 			customer_email: userSession?.user?.email ?? undefined,
+			metadata: {
+				cartId: cart.id,
+			},
 			success_url: successUrl,
 			cancel_url: cancelUrl,
 			automatic_tax: { enabled: true },
