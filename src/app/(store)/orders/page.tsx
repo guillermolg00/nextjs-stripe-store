@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { OrderHistory } from "@/components/order-history";
 import { OrderCard } from "@/components/orders/order-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -47,9 +48,7 @@ async function OrdersList() {
 
 	return (
 		<div className="space-y-4">
-			{orders.map((order) => (
-				<OrderCard key={order.id} order={order} locale={locale} />
-			))}
+			<OrderHistory orders={orders} />
 		</div>
 	);
 }
