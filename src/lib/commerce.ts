@@ -1,3 +1,4 @@
+"server-only";
 import { and, desc, eq, isNotNull, or } from "drizzle-orm";
 import Stripe from "stripe";
 import { db } from "@/db/db";

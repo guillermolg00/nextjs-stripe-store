@@ -2,14 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button } from "@//components/ui/button";
-import { Input } from "@//components/ui/input";
-import { authClient } from "@//lib/auth-client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 
-export function LoginForm() {
+export function RegisterForm() {
 	const router = useRouter();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [name, setName] = useState("");
 	const [isPending, setIsPending] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -19,17 +20,18 @@ export function LoginForm() {
 		setError(null);
 
 		try {
-			const result = await authClient.signIn.email({
+			const result = await authClient.signUp.email({
 				email,
 				password,
+				name,
 			});
 			if ("error" in result && result.error) {
-				setError(result.error.message ?? "Unable to sign in");
+				setError(result.error.message ?? "Unable to register");
 			} else {
 				router.push("/");
 			}
 		} catch {
-			setError("Unable to sign in. Please try again.");
+			setError("Unable to register. Please try again.");
 		} finally {
 			setIsPending(false);
 		}
@@ -37,6 +39,21 @@ export function LoginForm() {
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-4">
+			<div>
+				<label
+					className="mb-2 block font-medium text-foreground text-sm"
+					htmlFor="name"
+				>
+					Name
+				</label>
+				<Input
+					id="name"
+					type="text"
+					value={name}
+					onChange={(e) => setName(e.target.value)}
+					placeholder="Your name"
+				/>
+			</div>
 			<div>
 				<label
 					className="mb-2 block font-medium text-foreground text-sm"
@@ -71,7 +88,7 @@ export function LoginForm() {
 			</div>
 			{error && <p className="text-destructive text-sm">{error}</p>}
 			<Button type="submit" className="w-full" disabled={isPending}>
-				{isPending ? "Signing in..." : "Sign In"}
+				{isPending ? "Creating account..." : "Create account"}
 			</Button>
 		</form>
 	);

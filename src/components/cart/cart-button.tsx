@@ -2,7 +2,7 @@
 
 import { ShoppingCart } from "lucide-react";
 import { useShallow } from "zustand/shallow";
-import { getItemCount, useCart } from "@//components/cart/use-cart";
+import { getItemCount, useCart } from "@/components/cart/use-cart";
 
 export function CartButton() {
 	const { itemCount, openCart } = useCart(

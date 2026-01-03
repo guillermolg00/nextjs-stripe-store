@@ -7,8 +7,10 @@ const nextConfig = {
 	cacheComponents: true,
 	experimental: {
 		typedEnv: true,
+		inlineCss: true,
 	},
 	images: {
+		minimumCacheTTL: 31536000,
 		remotePatterns: [
 			{ hostname: "*.blob.vercel-storage.com" },
 			{ hostname: "files.stripe.com" },

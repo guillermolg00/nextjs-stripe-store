@@ -1,0 +1,124 @@
+import { randomUUID } from "node:crypto";
+import { eq } from "drizzle-orm";
+import { db } from "../src/db/db";
+import {
+	collections,
+	productCollections,
+	products,
+	productVariants,
+	type SyncStatus,
+} from "../src/db/schema";
+import { pushProductToStripe } from "../src/lib/product-sync";
+import { slugify } from "../src/lib/utils";
+import {
+	collections as seedCollections,
+	products as seedProducts,
+} from "./seed-data";
+
+async function seed() {
+	console.log("🌱 Starting product seed...\n");
+
+	// 1. Seed collections
+	console.log("📁 Seeding collections...");
+	const collectionMap = new Map<string, string>();
+
+	for (const col of seedCollections) {
+		const existing = await db.query.collections.findFirst({
+			where: eq(collections.slug, col.slug),
+		});
+
+		if (existing) {
+			console.log(`  ⏭️  Collection "${col.name}" already exists`);
+			collectionMap.set(col.slug, existing.id);
+			continue;
+		}
+
+		const id = randomUUID();
+		await db.insert(collections).values({
+			id,
+			slug: col.slug,
+			name: col.name,
+			description: col.description,
+			image: col.image,
+		});
+		collectionMap.set(col.slug, id);
+		console.log(`  ✅ Created collection "${col.name}"`);
+	}
+
+	// 2. Seed products
+	console.log("\n📦 Seeding products...");
+
+	for (const product of seedProducts) {
+		const slug = slugify(product.name);
+
+		const existing = await db.query.products.findFirst({
+			where: eq(products.slug, slug),
+		});
+
+		if (existing) {
+			console.log(`  ⏭️  Product "${product.name}" already exists`);
+			continue;
+		}
+
+		const productId = randomUUID();
+
+		// Insert product
+		await db.insert(products).values({
+			id: productId,
+			slug,
+			name: product.name,
+			description: product.description,
+			summary: product.summary,
+			images: product.images,
+			syncStatus: "pending" as SyncStatus,
+		});
+		console.log(`  ✅ Created product "${product.name}"`);
+
+		// Link to collections
+		for (const colSlug of product.collectionSlugs) {
+			const colId = collectionMap.get(colSlug);
+			if (colId) {
+				await db.insert(productCollections).values({
+					productId,
+					collectionId: colId,
+				});
+				console.log(`     📎 Linked to collection "${colSlug}"`);
+			}
+		}
+
+		// Insert variants
+		for (const variant of product.variants) {
+			const variantId = randomUUID();
+			const optionLabel = variant.options.map((o) => o.value).join(" / ");
+
+			await db.insert(productVariants).values({
+				id: variantId,
+				productId,
+				price: variant.price,
+				currency: variant.currency,
+				images: variant.images,
+				options: variant.options,
+				syncStatus: "pending" as SyncStatus,
+			});
+			console.log(`     🏷️  Created variant: ${optionLabel}`);
+		}
+
+		// Sync to Stripe
+		console.log("     🔄 Syncing to Stripe...");
+		const syncResult = await pushProductToStripe(productId);
+		if (syncResult.success) {
+			console.log("     ✅ Synced to Stripe");
+		} else {
+			console.log(`     ❌ Sync failed: ${syncResult.error}`);
+		}
+	}
+
+	console.log("\n🎉 Seed completed!");
+}
+
+seed()
+	.then(() => process.exit(0))
+	.catch((error) => {
+		console.error("❌ Seed failed:", error);
+		process.exit(1);
+	});

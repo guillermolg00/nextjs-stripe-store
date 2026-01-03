@@ -1,9 +1,9 @@
 import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { ProductCard } from "@//components/product/product-card";
-import type { Product } from "@//lib/commerce";
-import { commerce } from "@//lib/commerce";
+import { ProductCard } from "@/components/product/product-card";
+import type { Product } from "@/lib/commerce";
+import { commerce } from "@/lib/commerce";
 
 type ProductGridProps = {
 	title?: string;
@@ -25,19 +25,25 @@ export async function ProductGrid({
 	"use cache";
 	cacheLife("seconds");
 
-	const displayProducts = products ?? (await commerce.productBrowse({ limit })).data;
+	const displayProducts =
+		products ?? (await commerce.productBrowse({ limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+		<section
+			id="products"
+			className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8"
+		>
+			<div className="mb-12 flex items-end justify-between">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
+					<h2 className="font-medium text-2xl text-foreground sm:text-3xl">
+						{title}
+					</h2>
 					<p className="mt-2 text-muted-foreground">{description}</p>
 				</div>
 				{showViewAll && (
 					<Link
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="hidden items-center gap-1 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground sm:inline-flex"
 					>
 						View all
 						<ArrowRight className="h-4 w-4" />
@@ -45,7 +51,7 @@ export async function ProductGrid({
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
 				{displayProducts.map((product) => (
 					<ProductCard key={product.id} product={product} />
 				))}
@@ -55,7 +61,7 @@ export async function ProductGrid({
 				<div className="mt-12 text-center sm:hidden">
 					<Link
 						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex items-center gap-1 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
 					>
 						View all products
 						<ArrowRight className="h-4 w-4" />

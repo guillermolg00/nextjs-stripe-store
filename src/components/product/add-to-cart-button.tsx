@@ -2,9 +2,10 @@
 
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
-import { addToCart } from "@//app/cart/actions";
-import { useCart } from "@//components/cart/use-cart";
-import { formatMoney } from "@//lib/money";
+import { addToCart } from "@/app/cart/actions";
+import { useCart } from "@/components/cart/use-cart";
+import { DEFAULT_CURRENCY, DEFAULT_LOCALE } from "@/lib/constants";
+import { formatMoney } from "@/lib/money";
 import { QuantitySelector } from "./quantity-selector";
 import { TrustBadges } from "./trust-badges";
 import { VariantSelector } from "./variant-selector";
@@ -38,7 +39,7 @@ type AddToCartButtonProps = {
 	};
 };
 
-const locale = process.env.NEXT_PUBLIC_LOCALE ?? "en-US";
+const locale = DEFAULT_LOCALE;
 
 export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 	const searchParams = useSearchParams();
@@ -66,17 +67,20 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 		return variants.find((variant) =>
 			variant.combinations.every(
 				(combination) =>
-					paramsOptions[combination.variantValue.variantType.label] === combination.variantValue.value,
+					paramsOptions[combination.variantValue.variantType.label] ===
+					combination.variantValue.value,
 			),
 		);
 	}, [variants, searchParams]);
 
-	const totalPrice = selectedVariant ? BigInt(selectedVariant.price) * BigInt(quantity) : null;
+	const totalPrice = selectedVariant
+		? BigInt(selectedVariant.price) * BigInt(quantity)
+		: null;
 
 	const buttonText = useMemo(() => {
 		if (isPending) return "Adding...";
 		if (!selectedVariant) return "Select options";
-		const currency = selectedVariant.currency ?? "USD";
+		const currency = selectedVariant.currency ?? DEFAULT_CURRENCY;
 		if (totalPrice) {
 			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
 		}
@@ -121,20 +125,29 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 
 	return (
 		<div className="space-y-8">
-			{variants.length > 1 && <VariantSelector variants={variants} selectedVariantId={selectedVariant?.id} />}
+			{variants.length > 1 && (
+				<VariantSelector
+					variants={variants}
+					selectedVariantId={selectedVariant?.id}
+				/>
+			)}
 
-			<QuantitySelector quantity={quantity} onQuantityChange={setQuantity} disabled={isPending} />
+			<QuantitySelector
+				quantity={quantity}
+				onQuantityChange={setQuantity}
+				disabled={isPending}
+			/>
 
 			<form onSubmit={handleSubmit}>
 				<button
 					type="submit"
 					disabled={isPending || !selectedVariant}
-					className="w-full h-14 bg-foreground text-primary-foreground py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					className="h-14 w-full rounded-full bg-foreground px-8 py-4 font-medium text-base text-primary-foreground tracking-wide transition-colors hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-50"
 				>
 					{buttonText}
 				</button>
 			</form>
-			{error && <p className="text-sm text-destructive">{error}</p>}
+			{error && <p className="text-destructive text-sm">{error}</p>}
 
 			<TrustBadges />
 		</div>

@@ -1,4 +1,4 @@
-import type { Product, ProductVariant } from "@//lib/commerce";
+import type { Product, ProductVariant } from "@/lib/commerce";
 
 export type CartLineItem = {
 	quantity: number;

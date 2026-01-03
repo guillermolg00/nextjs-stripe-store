@@ -1,6 +1,7 @@
 // URL base del Blob storage (configurar en .env)
 const BLOB_BASE =
-	process.env.NEXT_PUBLIC_BLOB_URL ?? "https://mltbqy256fvxokxq.public.blob.vercel-storage.com";
+	process.env.NEXT_PUBLIC_BLOB_URL ??
+	"https://mltbqy256fvxokxq.public.blob.vercel-storage.com";
 
 const ASSETS = {
 	logos: {

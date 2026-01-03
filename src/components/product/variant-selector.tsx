@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
-import { cn } from "@//lib/utils";
+import { cn } from "@/lib/utils";
 
 type VariantValue = {
 	id: string;
@@ -60,7 +60,9 @@ function processVariants(variants: Variant[]) {
 				};
 			}
 
-			const existingOption = acc[label].options.find((opt) => opt.id === variantValue.id);
+			const existingOption = acc[label].options.find(
+				(opt) => opt.id === variantValue.id,
+			);
 
 			if (!existingOption) {
 				acc[label].options.push({
@@ -78,7 +80,10 @@ function processVariants(variants: Variant[]) {
 	return Object.values(groupedByLabel);
 }
 
-export function VariantSelector({ variants, selectedVariantId }: VariantSelectorProps) {
+export function VariantSelector({
+	variants,
+	selectedVariantId,
+}: VariantSelectorProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
@@ -99,13 +104,18 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 	const handleOptionSelect = (label: string, optionId: string) => {
 		const newSelectedOptions = { ...selectedOptions, [label]: optionId };
 
-		const params = Object.entries(newSelectedOptions).reduce((acc, [key, value]) => {
-			const option = variantGroups.find((g) => g.label === key)?.options.find((opt) => opt.id === value);
-			if (option) {
-				acc.set(key, option.value);
-			}
-			return acc;
-		}, new URLSearchParams());
+		const params = Object.entries(newSelectedOptions).reduce(
+			(acc, [key, value]) => {
+				const option = variantGroups
+					.find((g) => g.label === key)
+					?.options.find((opt) => opt.id === value);
+				if (option) {
+					acc.set(key, option.value);
+				}
+				return acc;
+			},
+			new URLSearchParams(),
+		);
 		router.push(`${pathname}?${params.toString()}`, { scroll: false });
 	};
 
@@ -116,21 +126,26 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 	return (
 		<div className="space-y-8">
 			{variantGroups.map((group) => {
-				const selectedOption = group.options.find((opt) => selectedOptions[group.label] === opt.id);
+				const selectedOption = group.options.find(
+					(opt) => selectedOptions[group.label] === opt.id,
+				);
 
 				return (
 					<div key={group.label}>
 						{group.type === "color" ? (
 							<>
 								<div className="mb-3 flex items-center justify-between">
-									<span className="text-sm font-medium">{group.label}</span>
+									<span className="font-medium text-sm">{group.label}</span>
 									{selectedOption && (
-										<span className="text-sm text-muted-foreground">{selectedOption.value}</span>
+										<span className="text-muted-foreground text-sm">
+											{selectedOption.value}
+										</span>
 									)}
 								</div>
 								<div className="flex gap-3">
 									{group.options.map((option) => {
-										const isSelected = selectedOptions[group.label] === option.id;
+										const isSelected =
+											selectedOptions[group.label] === option.id;
 										const isLightColor =
 											option.colorValue?.toUpperCase() === "#FFFFFF" ||
 											option.colorValue?.toUpperCase() === "#FFFFF0" ||
@@ -140,7 +155,9 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 											<button
 												key={option.id}
 												type="button"
-												onClick={() => handleOptionSelect(group.label, option.id)}
+												onClick={() =>
+													handleOptionSelect(group.label, option.id)
+												}
 												className={cn(
 													"relative h-12 w-12 rounded-full transition-all duration-200",
 													isSelected
@@ -162,17 +179,20 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 						) : (
 							<>
 								<div className="mb-3 flex items-center justify-between">
-									<span className="text-sm font-medium">{group.label}</span>
+									<span className="font-medium text-sm">{group.label}</span>
 								</div>
 								<div className="flex flex-wrap gap-3">
 									{group.options.map((option) => {
-										const isSelected = selectedOptions[group.label] === option.id;
+										const isSelected =
+											selectedOptions[group.label] === option.id;
 
 										return (
 											<button
 												key={option.id}
 												type="button"
-												onClick={() => handleOptionSelect(group.label, option.id)}
+												onClick={() =>
+													handleOptionSelect(group.label, option.id)
+												}
 												className={cn(
 													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
 													isSelected
@@ -180,7 +200,9 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 														: "border-border bg-background hover:border-muted-foreground",
 												)}
 											>
-												<span className="text-sm font-medium">{option.value}</span>
+												<span className="font-medium text-sm">
+													{option.value}
+												</span>
 											</button>
 										);
 									})}

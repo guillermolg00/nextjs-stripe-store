@@ -8,12 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { auth } from "@/lib/auth";
+import { DEFAULT_LOCALE } from "@/lib/constants";
 import { getOrderById } from "@/lib/orders";
 
-const locale = process.env.NEXT_PUBLIC_LOCALE ?? "en-US";
+const locale = DEFAULT_LOCALE;
 
 type OrderDetailPageProps = {
-	params: Promise<{ id: string }>;
+	params: { id: string };
 };
 
 async function OrderContent({ orderId }: { orderId: string }) {
@@ -92,7 +93,7 @@ function OrderSkeleton() {
 export default async function OrderDetailPage({
 	params,
 }: OrderDetailPageProps) {
-	const { id } = await params;
+	const { id } = params;
 
 	return (
 		<main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">

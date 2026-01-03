@@ -1,9 +1,9 @@
 import { Suspense } from "react";
-import { getCart } from "@//app/cart/actions";
-import { CartSidebar } from "@//app/cart/cart-sidebar";
-import { CartInitializer } from "@//components/cart/cart-initializer";
-import { Footer } from "@//components/layout/footer";
-import { Header } from "@//components/layout/header";
+import { getCart } from "@/app/cart/actions";
+import { CartInitializer } from "@/components/cart/cart-initializer";
+import { CartSidebar } from "@/components/cart/cart-sidebar";
+import { Footer } from "@/components/layout/footer";
+import { Header } from "@/components/layout/header";
 
 async function CartLoader({ children }: { children: React.ReactNode }) {
 	const cart = await getCart();
@@ -17,7 +17,11 @@ async function CartLoader({ children }: { children: React.ReactNode }) {
 	);
 }
 
-export default function StoreLayout({ children }: { children: React.ReactNode }) {
+export default function StoreLayout({
+	children,
+}: {
+	children: React.ReactNode;
+}) {
 	return (
 		<div className="antialiased">
 			<Suspense

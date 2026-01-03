@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ProductGrid } from "@//components/sections/product-grid";
-import { type Collection, commerce } from "@//lib/commerce";
+import { ProductGrid } from "@/components/sections/product-grid";
+import { type Collection, commerce } from "@/lib/commerce";
 
 function CollectionHeader({ collection }: { collection: Collection }) {
 	return (
@@ -68,10 +68,22 @@ function CollectionProducts({ collection }: { collection: Collection }) {
 	);
 }
 
-export default async function CategoryPage(
-	props: PageProps<"/category/[slug]">,
-) {
-	const { slug } = await props.params;
+export default async function CategoryPage({
+	params,
+}: {
+	params: Promise<{ slug: string }>;
+}) {
+	const { slug } = await params;
+
+	return (
+		<Suspense fallback={<ProductGridSkeleton />}>
+			<CategoryContent slug={slug} />
+		</Suspense>
+	);
+}
+
+async function CategoryContent({ slug }: { slug: string }) {
+	"use cache";
 	const collection = await commerce.collectionGet({ idOrSlug: slug });
 
 	if (!collection) {
@@ -81,9 +93,7 @@ export default async function CategoryPage(
 	return (
 		<main>
 			<CollectionHeader collection={collection} />
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
+			<CollectionProducts collection={collection} />
 		</main>
 	);
 }

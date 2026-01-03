@@ -1,22 +1,22 @@
 import { Suspense } from "react";
-import { ProductGrid } from "@//components/sections/product-grid";
+import { ProductGrid } from "@/components/sections/product-grid";
 
 function ProductGridSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+		<section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+			<div className="mb-12 flex items-end justify-between">
 				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
+					<div className="h-8 w-48 animate-pulse rounded bg-secondary" />
+					<div className="mt-2 h-5 w-64 animate-pulse rounded bg-secondary" />
 				</div>
 			</div>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
 				{Array.from({ length: 12 }).map((_, i) => (
 					<div key={`skeleton-${i}`}>
-						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
+						<div className="mb-4 aspect-square animate-pulse rounded-2xl bg-secondary" />
 						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+							<div className="h-5 w-3/4 animate-pulse rounded bg-secondary" />
+							<div className="h-5 w-1/4 animate-pulse rounded bg-secondary" />
 						</div>
 					</div>
 				))}

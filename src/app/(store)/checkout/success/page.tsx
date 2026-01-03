@@ -3,19 +3,20 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { ClearCartEffect } from "@/components/checkout/clear-cart-effect";
 import { OrderDetails } from "@/components/orders/order-details";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { auth } from "@/lib/auth";
+import { DEFAULT_LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { createOrderFromSession, getOrderBySessionId } from "@/lib/orders";
-import { ClearCartEffect } from "./clear-cart-effect";
 
-const locale = process.env.NEXT_PUBLIC_LOCALE ?? "en-US";
+const locale = DEFAULT_LOCALE;
 
 type CheckoutSuccessPageProps = {
-	searchParams: Promise<{ session_id?: string }>;
+	searchParams: { session_id?: string };
 };
 
 function BasicOrderConfirmation({
@@ -217,9 +218,9 @@ function OrderSkeleton() {
 async function SuccessPageContent({
 	searchParams,
 }: {
-	searchParams: Promise<{ session_id?: string }>;
+	searchParams: { session_id?: string };
 }) {
-	const { session_id: sessionId } = await searchParams;
+	const { session_id: sessionId } = searchParams;
 
 	if (!sessionId) {
 		redirect("/");

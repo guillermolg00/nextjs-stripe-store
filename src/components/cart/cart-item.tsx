@@ -5,12 +5,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { removeFromCart, setCartQuantity } from "@//app/cart/actions";
-import type { CartLineItem } from "@//app/cart/types";
-import { useCart } from "@//components/cart/use-cart";
-import { formatMoney } from "@//lib/money";
+import { removeFromCart, setCartQuantity } from "@/app/cart/actions";
+import type { CartLineItem } from "@/app/cart/types";
+import { useCart } from "@/components/cart/use-cart";
+import { DEFAULT_LOCALE } from "@/lib/constants";
+import { formatMoney } from "@/lib/money";
 
-const locale = process.env.NEXT_PUBLIC_LOCALE ?? "en-US";
+const locale = DEFAULT_LOCALE;
 
 type CartItemProps = {
 	item: CartLineItem;
@@ -77,7 +78,15 @@ export function CartItem({ item }: CartItemProps) {
 				onClick={closeCart}
 				className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-secondary"
 			>
-				{image && <Image src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && (
+					<Image
+						src={image}
+						alt={product.name}
+						fill
+						className="object-cover"
+						sizes="96px"
+					/>
+				)}
 			</Link>
 
 			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
@@ -85,14 +94,14 @@ export function CartItem({ item }: CartItemProps) {
 					<Link
 						href={`/product/${product.slug}`}
 						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+						className="line-clamp-2 font-medium text-foreground text-sm leading-tight hover:underline"
 					>
 						{product.name}
 					</Link>
 					<button
 						type="button"
 						onClick={handleRemove}
-						className="flex-shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors"
+						className="flex-shrink-0 p-1 text-muted-foreground transition-colors hover:text-destructive"
 					>
 						<Trash2 className="h-4 w-4" />
 					</button>
@@ -103,21 +112,23 @@ export function CartItem({ item }: CartItemProps) {
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="flex h-7 w-7 items-center justify-center rounded-l-full transition-colors hover:bg-secondary"
 						>
 							<Minus className="h-3 w-3" />
 						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
+						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">
+							{quantity}
+						</span>
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="flex h-7 w-7 items-center justify-center rounded-r-full transition-colors hover:bg-secondary"
 						>
 							<Plus className="h-3 w-3" />
 						</button>
 					</div>
 
-					<span className="text-sm font-semibold">
+					<span className="font-semibold text-sm">
 						{formatMoney({ amount: lineTotal, currency, locale })}
 					</span>
 				</div>

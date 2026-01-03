@@ -1,24 +1,29 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ProductGallery } from "@//components/product/product-gallery";
-import { commerce } from "@//lib/commerce";
-import { formatMoney } from "@//lib/money";
-import { AddToCartButton } from "./add-to-cart-button";
-import { ProductFeatures } from "./product-features";
+import { AddToCartButton } from "@/components/product/add-to-cart-button";
+import { ProductFeatures } from "@/components/product/product-features";
+import { ProductGallery } from "@/components/product/product-gallery";
+import { commerce } from "@/lib/commerce";
+import { DEFAULT_CURRENCY, DEFAULT_LOCALE } from "@/lib/constants";
+import { formatMoney } from "@/lib/money";
 
-const locale = process.env.NEXT_PUBLIC_LOCALE ?? "en-US";
+const locale = DEFAULT_LOCALE;
 
-export default async function ProductPage(props: { params: Promise<{ slug: string }> }) {
+export default async function ProductPage({
+	params,
+}: {
+	params: Promise<{ slug: string }>;
+}) {
+	const { slug } = await params;
 	return (
 		<Suspense>
-			<ProductDetails params={props.params} />
+			<ProductDetails slug={slug} />
 		</Suspense>
 	);
 }
 
-const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
+const ProductDetails = async ({ slug }: { slug: string }) => {
 	"use cache";
-	const { slug } = await params;
 	const product = await commerce.productGet({ idOrSlug: slug });
 
 	if (!product) {
@@ -26,9 +31,11 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	}
 
 	const prices = product.variants.map((variant) => BigInt(variant.price));
-	const currency = product.variants[0]?.currency ?? "USD";
-	const minPrice = prices.length > 0 ? prices.reduce((a, b) => (a < b ? a : b)) : BigInt(0);
-	const maxPrice = prices.length > 0 ? prices.reduce((a, b) => (a > b ? a : b)) : BigInt(0);
+	const currency = product.variants[0]?.currency ?? DEFAULT_CURRENCY;
+	const minPrice =
+		prices.length > 0 ? prices.reduce((a, b) => (a < b ? a : b)) : BigInt(0);
+	const maxPrice =
+		prices.length > 0 ? prices.reduce((a, b) => (a > b ? a : b)) : BigInt(0);
 
 	const priceDisplay =
 		prices.length > 1 && minPrice !== maxPrice
@@ -43,17 +50,23 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	];
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
 				<ProductGallery images={allImages} productName={product.name} />
 
-				<div className="mt-8 lg:mt-0 space-y-8">
+				<div className="mt-8 space-y-8 lg:mt-0">
 					<div className="space-y-4">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="text-balance font-medium text-4xl text-foreground tracking-tight lg:text-5xl">
 							{product.name}
 						</h1>
-						<p className="text-2xl font-semibold tracking-tight">{priceDisplay}</p>
-						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
+						<p className="font-semibold text-2xl tracking-tight">
+							{priceDisplay}
+						</p>
+						{product.summary && (
+							<p className="text-muted-foreground leading-relaxed">
+								{product.summary}
+							</p>
+						)}
 					</div>
 
 					<AddToCartButton

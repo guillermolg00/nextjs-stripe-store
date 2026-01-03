@@ -2,9 +2,10 @@
 
 import { randomUUID } from "node:crypto";
 import { cookies, headers } from "next/headers";
-import type { Cart, CartLineItem } from "@//app/cart/types";
-import { auth } from "@//lib/auth";
-import { commerce, stripe } from "@//lib/commerce";
+import type { Cart, CartLineItem } from "@/app/cart/types";
+import { auth } from "@/lib/auth";
+import { commerce, stripe } from "@/lib/commerce";
+import { DEFAULT_CURRENCY } from "@/lib/constants";
 
 const CART_COOKIE_NAME = "cart";
 const CART_ID_COOKIE = "cartId";
@@ -112,7 +113,9 @@ const buildCart = async (
 
 	const validItems = items.filter(Boolean) as CartLineItem[];
 	const currency =
-		storedCart.currency ?? validItems[0]?.productVariant.currency ?? "USD";
+		storedCart.currency ??
+		validItems[0]?.productVariant.currency ??
+		DEFAULT_CURRENCY;
 
 	return {
 		id: storedCart.id,

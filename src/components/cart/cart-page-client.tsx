@@ -5,19 +5,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useShallow } from "zustand/shallow";
-import { startCheckout } from "@//app/cart/actions";
-import { CartItem } from "@//components/cart/cart-item";
+import { startCheckout } from "@/app/cart/actions";
+import { CartItem } from "@/components/cart/cart-item";
 import {
 	getCurrency,
 	getItemCount,
 	getItems,
 	getSubtotal,
 	useCart,
-} from "@//components/cart/use-cart";
-import { Button } from "@//components/ui/button";
-import { formatMoney } from "@//lib/money";
+} from "@/components/cart/use-cart";
+import { Button } from "@/components/ui/button";
+import { DEFAULT_LOCALE } from "@/lib/constants";
+import { formatMoney } from "@/lib/money";
 
-const locale = process.env.NEXT_PUBLIC_LOCALE ?? "en-US";
+const locale = DEFAULT_LOCALE;
 
 export function CartPageClient() {
 	const router = useRouter();

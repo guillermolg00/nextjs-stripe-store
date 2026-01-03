@@ -1,27 +1,27 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1767012449727,
-      "tag": "0000_mean_moon_knight",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1767024414734,
-      "tag": "0001_sad_sleeper",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1767026855657,
-      "tag": "0002_strange_thaddeus_ross",
-      "breakpoints": true
-    }
-  ]
+	"version": "7",
+	"dialect": "postgresql",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "7",
+			"when": 1767012449727,
+			"tag": "0000_mean_moon_knight",
+			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "7",
+			"when": 1767024414734,
+			"tag": "0001_sad_sleeper",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1767026855657,
+			"tag": "0002_strange_thaddeus_ross",
+			"breakpoints": true
+		}
+	]
 }

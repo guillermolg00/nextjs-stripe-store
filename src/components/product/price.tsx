@@ -2,7 +2,7 @@
 
 import { createContext, type ReactNode, useContext } from "react";
 
-import { cn } from "@//lib/utils";
+import { cn } from "@/lib/utils";
 
 const PriceContext = createContext<{ onSale?: boolean }>({ onSale: false });
 export const usePriceContext = () => useContext(PriceContext);
@@ -31,7 +31,10 @@ const formatterCache = new Map<string, Intl.NumberFormat>();
 function formatCurrency(value: number, currency = "USD", locale = "en-US") {
 	const key = `${locale}-${currency}`;
 	if (!formatterCache.has(key)) {
-		formatterCache.set(key, new Intl.NumberFormat(locale, { style: "currency", currency }));
+		formatterCache.set(
+			key,
+			new Intl.NumberFormat(locale, { style: "currency", currency }),
+		);
 	}
 	return formatterCache.get(key)!.format(value);
 }
@@ -39,12 +42,19 @@ function formatCurrency(value: number, currency = "USD", locale = "en-US") {
 const Price = ({ className, children, onSale }: PriceProps) => {
 	return (
 		<PriceContext.Provider value={{ onSale }}>
-			<div className={cn("flex flex-wrap items-center gap-x-2", className)}>{children}</div>
+			<div className={cn("flex flex-wrap items-center gap-x-2", className)}>
+				{children}
+			</div>
 		</PriceContext.Provider>
 	);
 };
 
-const PriceValue = ({ price, currency = "USD", variant = "regular", className }: PriceValueProps) => {
+const PriceValue = ({
+	price,
+	currency = "USD",
+	variant = "regular",
+	className,
+}: PriceValueProps) => {
 	const { onSale } = usePriceContext();
 
 	if (price == null) return null;

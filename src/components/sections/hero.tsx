@@ -1,9 +1,9 @@
 import { Github } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@//components/ui/button";
-import { ASSETS } from "@//lib/assets";
-import { cn } from "@//lib/utils";
+import { Button } from "@/components/ui/button";
+import { ASSETS } from "@/lib/assets";
+import { cn } from "@/lib/utils";
 
 interface HeroProps {
 	className?: string;
@@ -11,12 +11,12 @@ interface HeroProps {
 
 const Hero = ({ className }: HeroProps) => {
 	return (
-		<section className={cn("relative p-0 w-full", className)}>
+		<section className={cn("relative w-full p-0", className)}>
 			<div className="container mx-auto px-4 py-28 md:py-32">
 				<div className="mx-auto flex max-w-5xl flex-col items-center">
 					<div className="z-10 mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
 						<div>
-							<h1 className="mb-6 text-4xl font-bold tracking-tight text-pretty md:text-5xl lg:text-7xl">
+							<h1 className="mb-6 text-pretty font-bold text-4xl tracking-tight md:text-5xl lg:text-7xl">
 								Nextjs Stripe Store
 							</h1>
 							<p className="mx-auto max-w-2xl text-muted-foreground md:text-lg lg:text-xl">
@@ -33,7 +33,7 @@ const Hero = ({ className }: HeroProps) => {
 							</Button>
 						</div>
 						<div className="mt-12 flex flex-col items-center gap-4 lg:mt-16">
-							<p className="text-center text-sm text-muted-foreground">
+							<p className="text-center text-muted-foreground text-sm">
 								Powering the next generation of digital products
 							</p>
 							<div className="grid grid-cols-3 place-items-center items-center justify-center gap-6 opacity-80 sm:grid-cols-6 sm:gap-4">
@@ -44,7 +44,13 @@ const Hero = ({ className }: HeroProps) => {
 									height={20}
 									className="h-5 w-auto dark:invert"
 								/>
-								<Image src={ASSETS.logos.stripe} alt="Stripe" width={80} height={32} className="h-8 w-auto" />
+								<Image
+									src={ASSETS.logos.stripe}
+									alt="Stripe"
+									width={80}
+									height={32}
+									className="h-8 w-auto"
+								/>
 								<Image
 									src={ASSETS.logos.vercel}
 									alt="Vercel"

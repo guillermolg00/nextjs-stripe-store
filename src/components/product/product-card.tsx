@@ -1,19 +1,25 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { Product } from "@//lib/commerce";
-import { formatMoney } from "@//lib/money";
+import type { Product } from "@/lib/commerce";
+import { DEFAULT_CURRENCY, DEFAULT_LOCALE } from "@/lib/constants";
+import { formatMoney } from "@/lib/money";
 
-const locale = process.env.NEXT_PUBLIC_LOCALE ?? "en-US";
+const locale = DEFAULT_LOCALE;
 
 export function ProductCard({ product }: { product: Product }) {
 	const variants = product.variants;
 	const prices = variants.map((variant) => BigInt(variant.price));
-	const currency = variants[0]?.currency ?? "USD";
-	const minPrice = prices.length > 0 ? prices.reduce((a, b) => (a < b ? a : b)) : null;
-	const maxPrice = prices.length > 0 ? prices.reduce((a, b) => (a > b ? a : b)) : null;
+	const currency = variants[0]?.currency ?? DEFAULT_CURRENCY;
+	const minPrice =
+		prices.length > 0 ? prices.reduce((a, b) => (a < b ? a : b)) : null;
+	const maxPrice =
+		prices.length > 0 ? prices.reduce((a, b) => (a > b ? a : b)) : null;
 
 	const priceDisplay =
-		prices.length > 1 && minPrice !== null && maxPrice !== null && minPrice !== maxPrice
+		prices.length > 1 &&
+		minPrice !== null &&
+		maxPrice !== null &&
+		minPrice !== maxPrice
 			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
 			: minPrice !== null
 				? formatMoney({ amount: minPrice, currency, locale })
@@ -21,14 +27,16 @@ export function ProductCard({ product }: { product: Product }) {
 
 	const allImages = [
 		...product.images,
-		...variants.flatMap((variant) => variant.images ?? []).filter((image) => !product.images.includes(image)),
+		...variants
+			.flatMap((variant) => variant.images ?? [])
+			.filter((image) => !product.images.includes(image)),
 	];
 	const primaryImage = allImages[0];
 	const secondaryImage = allImages[1];
 
 	return (
 		<Link key={product.id} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div className="relative mb-4 aspect-square overflow-hidden rounded-2xl bg-secondary">
 				{primaryImage && (
 					<Image
 						src={primaryImage}
@@ -49,8 +57,12 @@ export function ProductCard({ product }: { product: Product }) {
 				)}
 			</div>
 			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+				<h3 className="font-medium text-base text-foreground">
+					{product.name}
+				</h3>
+				<p className="font-semibold text-base text-foreground">
+					{priceDisplay}
+				</p>
 			</div>
 		</Link>
 	);

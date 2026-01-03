@@ -1,8 +1,8 @@
 "use client";
 import { create } from "zustand";
-import { useShallow } from "zustand/shallow";
-import type { Cart, CartLineItem } from "@//app/cart/types";
-import { calculateSubtotal } from "@//utils/cart";
+import type { Cart, CartLineItem } from "@/app/cart/types";
+import { DEFAULT_CURRENCY } from "@/lib/constants";
+import { calculateSubtotal } from "@/utils/cart";
 
 interface CartStore {
 	cart: Cart | null;
@@ -37,7 +37,9 @@ export const useCart = create<CartStore>((set, get) => ({
 			});
 		}
 
-		const existing = cart.lineItems.find((i) => i.productVariant.id === item.productVariant.id);
+		const existing = cart.lineItems.find(
+			(i) => i.productVariant.id === item.productVariant.id,
+		);
 
 		if (existing) {
 			return set({
@@ -63,7 +65,9 @@ export const useCart = create<CartStore>((set, get) => ({
 			cart: {
 				...cart,
 				lineItems: cart.lineItems.map((item) =>
-					item.productVariant.id === variantId ? { ...item, quantity: item.quantity + 1 } : item,
+					item.productVariant.id === variantId
+						? { ...item, quantity: item.quantity + 1 }
+						: item,
 				),
 			},
 		});
@@ -78,7 +82,9 @@ export const useCart = create<CartStore>((set, get) => ({
 				...cart,
 				lineItems: cart.lineItems
 					.map((item) =>
-						item.productVariant.id === variantId ? { ...item, quantity: item.quantity - 1 } : item,
+						item.productVariant.id === variantId
+							? { ...item, quantity: item.quantity - 1 }
+							: item,
 					)
 					.filter((item) => item.quantity > 0),
 			},
@@ -92,7 +98,9 @@ export const useCart = create<CartStore>((set, get) => ({
 		set({
 			cart: {
 				...cart,
-				lineItems: cart.lineItems.filter((item) => item.productVariant.id !== variantId),
+				lineItems: cart.lineItems.filter(
+					(item) => item.productVariant.id !== variantId,
+				),
 			},
 		});
 	},
@@ -104,8 +112,11 @@ export const useCart = create<CartStore>((set, get) => ({
 export const getItems = (state: CartStore) => state.cart?.lineItems ?? [];
 export const getItemCount = (state: CartStore) =>
 	getItems(state).reduce((sum, item) => sum + item.quantity, 0);
-export const getSubtotal = (state: CartStore) => calculateSubtotal(getItems(state));
+export const getSubtotal = (state: CartStore) =>
+	calculateSubtotal(getItems(state));
 export const getCurrency = (state: CartStore) =>
-	state.cart?.currency ?? getItems(state)[0]?.productVariant.currency ?? "USD";
+	state.cart?.currency ??
+	getItems(state)[0]?.productVariant.currency ??
+	DEFAULT_CURRENCY;
 
 export type { Cart, CartLineItem };

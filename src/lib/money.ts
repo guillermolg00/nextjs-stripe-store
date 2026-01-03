@@ -1,6 +1,10 @@
 import { invariant } from "./invariant";
 
-export const formatMoney = ({ amount: minor, currency, locale }: MoneyInt & { locale: string }) => {
+export const formatMoney = ({
+	amount: minor,
+	currency,
+	locale,
+}: MoneyInt & { locale: string }) => {
 	const amount = getDecimalAmountFromInt({ amount: minor, currency });
 	return new Intl.NumberFormat(locale, {
 		style: "currency",
@@ -12,9 +16,9 @@ export const formatMoney = ({ amount: minor, currency, locale }: MoneyInt & { lo
 const getDecimalsForCurrency = (currency: string) => {
 	invariant(currency.length === 3, "currency needs to be a 3-letter code");
 
-	const stripeDecimals = edgeCaseCurrencies[currency.toUpperCase() as EdgeCaseCurrenciesSymbol] as
-		| EdgeCaseCurrencies[EdgeCaseCurrenciesSymbol]
-		| undefined;
+	const stripeDecimals = edgeCaseCurrencies[
+		currency.toUpperCase() as EdgeCaseCurrenciesSymbol
+	] as EdgeCaseCurrencies[EdgeCaseCurrenciesSymbol] | undefined;
 	const decimals = stripeDecimals ?? 2;
 	return decimals;
 };

@@ -4,12 +4,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useShallow } from "zustand/shallow";
-import { startCheckout } from "@//app/cart/actions";
-import { getCurrency, getItems, getSubtotal, useCart } from "@//components/cart/use-cart";
-import { Button } from "@//components/ui/button";
-import { formatMoney } from "@//lib/money";
+import { startCheckout } from "@/app/cart/actions";
+import {
+	getCurrency,
+	getItems,
+	getSubtotal,
+	useCart,
+} from "@/components/cart/use-cart";
+import { Button } from "@/components/ui/button";
+import { DEFAULT_LOCALE } from "@/lib/constants";
+import { formatMoney } from "@/lib/money";
 
-const locale = process.env.NEXT_PUBLIC_LOCALE ?? "en-US";
+const locale = DEFAULT_LOCALE;
 
 export function CheckoutPageClient() {
 	const { items, subtotal, currency } = useCart(
@@ -38,7 +44,7 @@ export function CheckoutPageClient() {
 	if (items.length === 0) {
 		return (
 			<div className="space-y-4">
-				<p className="text-lg font-medium">Your cart is empty.</p>
+				<p className="font-medium text-lg">Your cart is empty.</p>
 				<Button asChild variant="outline">
 					<Link href="/">Back to shopping</Link>
 				</Button>
@@ -49,27 +55,33 @@ export function CheckoutPageClient() {
 	return (
 		<div className="space-y-6">
 			<div>
-				<h1 className="text-3xl font-semibold tracking-tight">Checkout</h1>
-				<p className="text-sm text-muted-foreground mt-1">
+				<h1 className="font-semibold text-3xl tracking-tight">Checkout</h1>
+				<p className="mt-1 text-muted-foreground text-sm">
 					Review your items and proceed to secure Stripe checkout.
 				</p>
 			</div>
-			<div className="rounded-xl border border-border p-6 space-y-4">
+			<div className="space-y-4 rounded-xl border border-border p-6">
 				<div className="flex items-center justify-between">
-					<span className="text-sm text-muted-foreground">Items</span>
-					<span className="text-sm font-medium">{items.length}</span>
+					<span className="text-muted-foreground text-sm">Items</span>
+					<span className="font-medium text-sm">{items.length}</span>
 				</div>
 				<div className="flex items-center justify-between">
-					<span className="text-base font-medium">Subtotal</span>
-					<span className="text-base font-semibold">
+					<span className="font-medium text-base">Subtotal</span>
+					<span className="font-semibold text-base">
 						{formatMoney({ amount: subtotal, currency, locale })}
 					</span>
 				</div>
-				<p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout</p>
-				<Button className="w-full" disabled={isPending} onClick={handleCheckout}>
+				<p className="text-muted-foreground text-xs">
+					Shipping and taxes calculated at checkout
+				</p>
+				<Button
+					className="w-full"
+					disabled={isPending}
+					onClick={handleCheckout}
+				>
 					{isPending ? "Redirecting..." : "Start Checkout"}
 				</Button>
-				{error && <p className="text-xs text-destructive">{error}</p>}
+				{error && <p className="text-destructive text-xs">{error}</p>}
 			</div>
 		</div>
 	);

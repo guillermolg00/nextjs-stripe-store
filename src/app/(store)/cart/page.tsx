@@ -1,4 +1,4 @@
-import { CartPageClient } from "./cart-page-client";
+import { CartPageClient } from "@/components/cart/cart-page-client";
 
 export default function CartPage() {
 	return (

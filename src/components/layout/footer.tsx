@@ -1,10 +1,21 @@
 "use client";
 
-import { Facebook, Instagram, type LucideIcon, Plus, Twitter } from "lucide-react";
+import {
+	Facebook,
+	Instagram,
+	type LucideIcon,
+	Plus,
+	Twitter,
+} from "lucide-react";
 import Link from "next/link";
 import { Fragment } from "react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@//components/ui/accordion";
-import { Button } from "@//components/ui/button";
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 import {
 	Select,
 	SelectContent,
@@ -12,9 +23,9 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@//components/ui/select";
-import { ASSETS } from "@//lib/assets";
-import { cn } from "@//lib/utils";
+} from "@/components/ui/select";
+import { ASSETS } from "@/lib/assets";
+import { cn } from "@/lib/utils";
 
 type NewsletterData = {
 	title?: string;
@@ -221,13 +232,13 @@ const Footer = ({
 }: FooterProps) => {
 	return (
 		<section className={cn("pt-12.5 pb-30", className)}>
-			<div className="container mx-auto px-4 space-y-10">
+			<div className="container mx-auto space-y-10 px-4">
 				<div className="grid grid-cols-1 gap-7.5 lg:grid-cols-5 xl:grid-cols-2">
 					<div className="space-y-5 lg:max-xl:col-span-2">
-						<Link href="/" className="text-xl font-bold">
+						<Link href="/" className="font-bold text-xl">
 							Next Stripe Store
 						</Link>
-						<p className="max-w-100 text-sm leading-relaxed text-muted-foreground">
+						<p className="max-w-100 text-muted-foreground text-sm leading-relaxed">
 							{footerDetails.description}
 						</p>
 					</div>
@@ -273,7 +284,7 @@ const FooterLinksSection = ({ sections }: FooterLinksSectionProps) => {
 		<Accordion
 			defaultValue={allAccordionIds}
 			type="multiple"
-			className="grid grid-cols-1 lg:grid-cols-3 gap-4"
+			className="grid grid-cols-1 gap-4 lg:grid-cols-3"
 		>
 			<AccordionItems sections={sections} />
 		</Accordion>
@@ -284,8 +295,12 @@ const AccordionItems = ({ sections }: { sections: FooterLinksSection[] }) => {
 	return (
 		<Fragment>
 			{sections.map(({ id, title, items }) => (
-				<AccordionItem key={id} value={id} className="border-b lg:border-transparent">
-					<AccordionTrigger className="cursor-auto rounded-none pt-0 pb-4 text-base leading-normal font-bold hover:no-underline max-lg:py-4 [&>svg]:hidden">
+				<AccordionItem
+					key={id}
+					value={id}
+					className="border-b lg:border-transparent"
+				>
+					<AccordionTrigger className="cursor-auto rounded-none pt-0 pb-4 font-bold text-base leading-normal hover:no-underline max-lg:py-4 [&>svg]:hidden">
 						{title}
 						<div className="lg:hidden">
 							<Plus className="size-5" />
@@ -294,8 +309,14 @@ const AccordionItems = ({ sections }: { sections: FooterLinksSection[] }) => {
 					<AccordionContent className="pb-1 max-lg:py-4">
 						<ul className="space-y-4 lg:space-y-3">
 							{items.map(({ link, text }, index) => (
-								<li className="text-sm leading-tight font-light" key={`item-${index}`}>
-									<a href={link} className="hover:underline hover:underline-offset-3">
+								<li
+									className="font-light text-sm leading-tight"
+									key={`item-${index}`}
+								>
+									<a
+										href={link}
+										className="hover:underline hover:underline-offset-3"
+									>
 										{text}
 									</a>
 								</li>
@@ -341,7 +362,7 @@ const FooterSubMenu = ({ links }: { links: FooterLink[] }) => {
 		<ul className="flex flex-wrap gap-x-6 gap-y-4">
 			{links.map(({ link, text }, index) => (
 				<li key={`submenu-${index}`}>
-					<a href={link} className="text-sm font-light">
+					<a href={link} className="font-light text-sm">
 						{text}
 					</a>
 				</li>

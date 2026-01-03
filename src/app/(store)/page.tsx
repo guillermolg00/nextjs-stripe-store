@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import { Hero } from "@//components/sections/hero";
-import { ProductGrid } from "@//components/sections/product-grid";
+import { Hero } from "@/components/sections/hero";
+import { ProductGrid } from "@/components/sections/product-grid";
 
 function ProductGridSkeleton() {
 	return (

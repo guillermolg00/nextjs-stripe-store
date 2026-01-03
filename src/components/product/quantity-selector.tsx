@@ -1,7 +1,7 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
-import { Button } from "@//components/ui/button";
+import { Button } from "@/components/ui/button";
 
 type QuantitySelectorProps = {
 	quantity: number;
@@ -20,7 +20,7 @@ export function QuantitySelector({
 }: QuantitySelectorProps) {
 	return (
 		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
+			<span className="mb-3 block font-medium text-sm">Quantity</span>
 			<div className="inline-flex items-center rounded-lg border border-border">
 				<Button
 					variant="ghost"
@@ -31,7 +31,9 @@ export function QuantitySelector({
 				>
 					<Minus className="h-4 w-4" />
 				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
+				<span className="flex h-10 w-14 items-center justify-center font-medium text-sm">
+					{quantity}
+				</span>
 				<Button
 					variant="ghost"
 					size="icon"

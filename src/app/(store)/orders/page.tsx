@@ -4,14 +4,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { OrderHistory } from "@/components/order-history";
-import { OrderCard } from "@/components/orders/order-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { auth } from "@/lib/auth";
 import { getOrdersByUser } from "@/lib/orders";
-
-const locale = process.env.NEXT_PUBLIC_LOCALE ?? "en-US";
 
 async function OrdersList() {
 	const session = await auth.api.getSession({

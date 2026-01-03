@@ -2,15 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button } from "@//components/ui/button";
-import { Input } from "@//components/ui/input";
-import { authClient } from "@//lib/auth-client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 
-export function RegisterForm() {
+export function LoginForm() {
 	const router = useRouter();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const [name, setName] = useState("");
 	const [isPending, setIsPending] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -20,18 +19,17 @@ export function RegisterForm() {
 		setError(null);
 
 		try {
-			const result = await authClient.signUp.email({
+			const result = await authClient.signIn.email({
 				email,
 				password,
-				name,
 			});
 			if ("error" in result && result.error) {
-				setError(result.error.message ?? "Unable to register");
+				setError(result.error.message ?? "Unable to sign in");
 			} else {
 				router.push("/");
 			}
 		} catch {
-			setError("Unable to register. Please try again.");
+			setError("Unable to sign in. Please try again.");
 		} finally {
 			setIsPending(false);
 		}
@@ -40,19 +38,10 @@ export function RegisterForm() {
 	return (
 		<form onSubmit={handleSubmit} className="space-y-4">
 			<div>
-				<label className="text-sm font-medium text-foreground mb-2 block" htmlFor="name">
-					Name
-				</label>
-				<Input
-					id="name"
-					type="text"
-					value={name}
-					onChange={(e) => setName(e.target.value)}
-					placeholder="Your name"
-				/>
-			</div>
-			<div>
-				<label className="text-sm font-medium text-foreground mb-2 block" htmlFor="email">
+				<label
+					className="mb-2 block font-medium text-foreground text-sm"
+					htmlFor="email"
+				>
 					Email
 				</label>
 				<Input
@@ -65,7 +54,10 @@ export function RegisterForm() {
 				/>
 			</div>
 			<div>
-				<label className="text-sm font-medium text-foreground mb-2 block" htmlFor="password">
+				<label
+					className="mb-2 block font-medium text-foreground text-sm"
+					htmlFor="password"
+				>
 					Password
 				</label>
 				<Input
@@ -77,9 +69,9 @@ export function RegisterForm() {
 					placeholder="••••••••"
 				/>
 			</div>
-			{error && <p className="text-sm text-destructive">{error}</p>}
+			{error && <p className="text-destructive text-sm">{error}</p>}
 			<Button type="submit" className="w-full" disabled={isPending}>
-				{isPending ? "Creating account..." : "Create account"}
+				{isPending ? "Signing in..." : "Sign In"}
 			</Button>
 		</form>
 	);

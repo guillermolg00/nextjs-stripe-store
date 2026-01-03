@@ -2,8 +2,9 @@ import { ShoppingCartIcon } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
-import { CartButton } from "@//app/cart-button";
-import { commerce } from "@//lib/commerce";
+import { CartButton } from "@/components/cart/cart-button";
+import { commerce } from "@/lib/commerce";
+import { SITE_NAME } from "@/lib/constants";
 import { NavUser, NavUserFallback } from "./nav-user";
 
 function CartButtonFallback() {
@@ -48,7 +49,7 @@ export async function Header() {
 				<div className="flex h-16 items-center justify-between">
 					<div className="flex items-center gap-8">
 						<Link href="/" className="font-bold text-xl">
-							Next Stripe Store
+							{SITE_NAME}
 						</Link>
 						<Suspense>
 							<NavLinks />

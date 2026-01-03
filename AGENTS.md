@@ -10,18 +10,23 @@ Specialized guidance for AI agents working with Next Stripe Store.
 **Entry Points**:
 | Task | Start Here |
 |------|------------|
-| Stripe data | `lib/commerce.ts` |
-| Cart operations | `app/cart/actions.ts` |
-| Product pages | `app/(store)/product/[slug]/` |
-| UI components | `components/ui/` |
-| Store layout | `app/(store)/layout.tsx` |
+| Catalog + Stripe client | `src/lib/commerce.ts` |
+| Product sync (DB → Stripe) | `src/lib/product-sync.ts` |
+| Cart operations | `src/app/cart/actions.ts` |
+| Orders + webhooks | `src/app/api/webhooks/stripe/route.ts` + `src/lib/orders.ts` |
+| Admin workflows | `src/app/admin/products/` + `src/app/api/admin/` |
+| Product pages | `src/app/(store)/product/[slug]/` |
+| UI components | `src/components/ui/` |
+| Store layout | `src/app/(store)/layout.tsx` |
+| DB schema | `src/db/schema.ts` |
 
 **Key Patterns to Recognize**:
 - `"use server"` → Server action file
 - `"use cache"` → Cached async component
 - `"use client"` → Client component with interactivity
-- `commerce.*` → Stripe data access
-- `dispatch({ type: ... })` → Cart state mutation
+- `commerce.*` → DB-backed product/collection access (variants expose Stripe Price IDs)
+- `pushProductToStripe` / `pushVariantToStripe` → Sync DB catalog to Stripe
+- `useCart((state) => ...)` → Cart store access (Zustand)
 
 ### 📋 Planner Agent
 **Goal**: Design implementation strategy before coding.
@@ -56,16 +61,17 @@ Need interactivity?
 bun dev              # Start server
 bun run lint         # Check code
 bunx tsc --noEmit    # Type check
+bunx drizzle-kit migrate # Apply DB migrations
 ```
 
 **Implementation Rules**:
 | Constraint | Requirement |
 |------------|-------------|
-| Exports | Named exports only (except Next.js special files) |
-| Loops | Use `map`/`filter`/`reduce`, never `for...of` |
-| Types | No `any`, rely on inference |
-| Imports | Use `@/` path aliases |
-| Prices | Always `BigInt()`, never number literals |
+| Exports | Prefer named exports (except Next.js special files like `page.tsx`, `layout.tsx`) |
+| Data fetching | Fetch in Server Components where possible; wrap async loaders in `<Suspense>` |
+| Auth gates | Admin routes/actions must check role (`USER`/`ADMIN`) via DB (`src/lib/admin-auth.ts`) |
+| Imports | Use `@/*` alias (maps to `src/*`) for internal imports |
+| Money | Treat stored prices as minor-unit strings; use `BigInt()` for totals and `formatMoney()` |
 
 ## Task Recipes
 
@@ -115,28 +121,24 @@ export default function MyPage() {
 "use client";
 
 import { addToCart } from "@/app/cart/actions";
-import { useCart } from "@/features/cart/cart.store";
+import { useCart } from "@/components/cart/use-cart";
 
-function AddButton({ variantId, variant, product }) {
-  const { dispatch, openCart } = useCart();
+function AddButton({ variantId, productVariant }) {
+  const openCart = useCart((state) => state.openCart);
+  const add = useCart((state) => state.add);
+  const sync = useCart((state) => state.sync);
   const [isPending, startTransition] = useTransition();
 
   const handleAdd = () => {
     openCart();
     startTransition(async () => {
       // Optimistic update
-      dispatch({
-        type: "ADD_ITEM",
-        item: {
-          quantity: 1,
-          productVariant: { ...variant, product },
-        },
-      });
+      add({ quantity: 1, productVariant });
       
       // Server sync
       const result = await addToCart(variantId, 1);
       if (result?.cart) {
-        dispatch({ type: "SYNC", cart: result.cart });
+        sync(result.cart);
       }
     });
   };
@@ -221,6 +223,7 @@ Before marking task complete:
 - [ ] **Lint**: `bun run lint` passes  
 - [ ] **Suspense**: All `"use cache"` components wrapped
 - [ ] **Cart**: Add/remove works, sidebar opens
+- [ ] **Webhooks** (if enabled): Stripe events reach `POST /api/webhooks/stripe` without signature errors
 - [ ] **Mobile**: Test at 375px viewport
 - [ ] **Console**: No errors in browser dev tools
 
@@ -228,22 +231,26 @@ Before marking task complete:
 
 | Need | File |
 |------|------|
-| Stripe API calls | `lib/commerce.ts` |
-| Cart mutations | `app/cart/actions.ts` |
-| Cart UI state | `features/cart/cart.store.tsx` |
-| Price formatting | `lib/money.ts` |
-| Site constants | `lib/constants.ts` |
-| Shadcn components | `components/ui/*` |
-| Product card | `components/product/product-card.tsx` |
-| Store layout | `app/(store)/layout.tsx` |
+| Catalog queries + Stripe client | `src/lib/commerce.ts` |
+| Product sync | `src/lib/product-sync.ts` |
+| Cart mutations + checkout | `src/app/cart/actions.ts` |
+| Cart UI state | `src/components/cart/use-cart.ts` |
+| Price formatting | `src/lib/money.ts` |
+| Orders | `src/lib/orders.ts` |
+| DB schema | `src/db/schema.ts` |
+| Shadcn components | `src/components/ui/*` |
+| Product card | `src/components/product/product-card.tsx` |
+| Store layout | `src/app/(store)/layout.tsx` |
 
 ## Environment Variables
 
 ```bash
-STRIPE_SECRET_KEY      # Required - Stripe secret key
-STRIPE_PUBLISHABLE_KEY # Required - Stripe public key  
-NEXT_PUBLIC_ROOT_URL   # Required - Base URL for redirects
-BETTER_AUTH_SECRET     # Required - Auth secret (≥32 chars)
-NEXT_PUBLIC_LOCALE     # Optional - Formatting locale
-STRIPE_SHIPPING_RATE_ID # Optional - Reusable shipping rate
+DATABASE_URL             # Required - Postgres connection string
+STRIPE_SECRET_KEY        # Required - Stripe secret key
+NEXT_PUBLIC_ROOT_URL     # Required - Base URL for redirects and auth callbacks
+BETTER_AUTH_SECRET       # Recommended - Auth secret (≥32 chars)
+NEXT_PUBLIC_LOCALE       # Optional - Formatting locale
+NEXT_PUBLIC_BLOB_URL     # Optional - Base URL for public assets
+STRIPE_SHIPPING_RATE_ID  # Optional - Reusable shipping rate
+STRIPE_WEBHOOK_SECRET    # Optional - Required if you enable Stripe webhooks locally
 ```
