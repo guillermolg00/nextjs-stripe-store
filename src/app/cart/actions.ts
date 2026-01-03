@@ -31,6 +31,81 @@ type StoredCart = {
 	}[];
 };
 
+const normalizeStoredCart = (value: unknown): StoredCart | null => {
+	if (!value || typeof value !== "object") {
+		return null;
+	}
+
+	const parsed = value as {
+		id?: unknown;
+		currency?: unknown;
+		items?: unknown;
+	};
+
+	if (typeof parsed.id !== "string" || !Array.isArray(parsed.items)) {
+		return null;
+	}
+
+	const items = parsed.items
+		.map((item) => {
+			if (!item || typeof item !== "object") {
+				return null;
+			}
+
+			const entry = item as {
+				priceId?: unknown;
+				quantity?: unknown;
+			};
+
+			if (typeof entry.priceId !== "string") {
+				return null;
+			}
+
+			const quantity = Number(entry.quantity);
+			if (!Number.isFinite(quantity) || quantity <= 0) {
+				return null;
+			}
+
+			return { priceId: entry.priceId, quantity };
+		})
+		.filter(Boolean) as StoredCart["items"];
+
+	return {
+		id: parsed.id,
+		currency: typeof parsed.currency === "string" ? parsed.currency : null,
+		items,
+	};
+};
+
+const parseStoredCart = (raw: string): StoredCart | null => {
+	const candidates = [raw];
+
+	try {
+		const decoded = decodeURIComponent(raw);
+		if (decoded !== raw) {
+			candidates.push(decoded);
+		}
+	} catch {
+		// Ignore malformed URI sequences and try the raw value.
+	}
+
+	for (const candidate of candidates) {
+		try {
+			let parsed: unknown = JSON.parse(candidate);
+			if (typeof parsed === "string") {
+				parsed = JSON.parse(parsed);
+			}
+
+			const normalized = normalizeStoredCart(parsed);
+			if (normalized) {
+				return normalized;
+			}
+		} catch {}
+	}
+
+	return null;
+};
+
 const readCartCookie = async () => {
 	const cookieStore = await cookies();
 	const raw = cookieStore.get(CART_COOKIE_NAME)?.value;
@@ -39,30 +114,12 @@ const readCartCookie = async () => {
 		return null;
 	}
 
-	try {
-		const parsed = JSON.parse(raw) as StoredCart;
-		if (!parsed.id || !Array.isArray(parsed.items)) {
-			return null;
-		}
-
-		return {
-			id: parsed.id,
-			currency: parsed.currency ?? null,
-			items: parsed.items
-				.map((item) => ({
-					priceId: item.priceId,
-					quantity: Number(item.quantity),
-				}))
-				.filter((item) => Number.isFinite(item.quantity) && item.quantity > 0),
-		} satisfies StoredCart;
-	} catch {
-		return null;
-	}
+	return parseStoredCart(raw);
 };
 
 const persistCart = async (cart: StoredCart) => {
 	const cookieStore = await cookies();
-	const serialized = JSON.stringify(cart);
+	const serialized = encodeURIComponent(JSON.stringify(cart));
 
 	cookieStore.set(CART_COOKIE_NAME, serialized, {
 		httpOnly: true,
@@ -274,7 +331,9 @@ export async function startCheckout() {
 
 		return { success: true, url: session.url };
 	} catch (error) {
+		const message =
+			error instanceof Error ? error.message : "Unable to start checkout";
 		console.error("Failed to create checkout session", error);
-		return { success: false, url: null, error: "Unable to start checkout" };
+		return { success: false, url: null, error: message };
 	}
 }

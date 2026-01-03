@@ -14,7 +14,7 @@ import { getOrderById } from "@/lib/orders";
 const locale = DEFAULT_LOCALE;
 
 type OrderDetailPageProps = {
-	params: { id: string };
+	params: Promise<{ id: string }>;
 };
 
 async function OrderContent({ orderId }: { orderId: string }) {
@@ -90,11 +90,7 @@ function OrderSkeleton() {
 	);
 }
 
-export default async function OrderDetailPage({
-	params,
-}: OrderDetailPageProps) {
-	const { id } = params;
-
+export default function OrderDetailPage(props: OrderDetailPageProps) {
 	return (
 		<main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
 			<div className="mb-6">
@@ -107,8 +103,13 @@ export default async function OrderDetailPage({
 			</div>
 
 			<Suspense fallback={<OrderSkeleton />}>
-				<OrderContent orderId={id} />
+				<OrderDetailContent {...props} />
 			</Suspense>
 		</main>
 	);
+}
+
+async function OrderDetailContent({ params }: OrderDetailPageProps) {
+	const { id } = await params;
+	return <OrderContent orderId={id} />;
 }

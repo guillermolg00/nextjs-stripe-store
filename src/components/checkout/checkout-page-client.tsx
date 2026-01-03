@@ -37,7 +37,7 @@ export function CheckoutPageClient() {
 				router.push(result.url);
 				return;
 			}
-			setError("Unable to start checkout. Please try again.");
+			setError(result?.error ?? "Unable to start checkout. Please try again.");
 		});
 	};
 

@@ -68,22 +68,25 @@ function CollectionProducts({ collection }: { collection: Collection }) {
 	);
 }
 
-export default async function CategoryPage({
+export default function CategoryPage(props: {
+	params: Promise<{ slug: string }>;
+}) {
+	return (
+		<main>
+			<Suspense fallback={<ProductGridSkeleton />}>
+				<CategoryContent {...props} />
+			</Suspense>
+		</main>
+	);
+}
+
+async function CategoryContent({
 	params,
 }: {
 	params: Promise<{ slug: string }>;
 }) {
-	const { slug } = await params;
-
-	return (
-		<Suspense fallback={<ProductGridSkeleton />}>
-			<CategoryContent slug={slug} />
-		</Suspense>
-	);
-}
-
-async function CategoryContent({ slug }: { slug: string }) {
 	"use cache";
+	const { slug } = await params;
 	const collection = await commerce.collectionGet({ idOrSlug: slug });
 
 	if (!collection) {
@@ -91,9 +94,9 @@ async function CategoryContent({ slug }: { slug: string }) {
 	}
 
 	return (
-		<main>
+		<>
 			<CollectionHeader collection={collection} />
 			<CollectionProducts collection={collection} />
-		</main>
+		</>
 	);
 }

@@ -16,7 +16,7 @@ import { createOrderFromSession, getOrderBySessionId } from "@/lib/orders";
 const locale = DEFAULT_LOCALE;
 
 type CheckoutSuccessPageProps = {
-	searchParams: { session_id?: string };
+	searchParams: Promise<{ session_id?: string }>;
 };
 
 function BasicOrderConfirmation({
@@ -218,9 +218,9 @@ function OrderSkeleton() {
 async function SuccessPageContent({
 	searchParams,
 }: {
-	searchParams: { session_id?: string };
+	searchParams: Promise<{ session_id?: string }>;
 }) {
-	const { session_id: sessionId } = searchParams;
+	const { session_id: sessionId } = await searchParams;
 
 	if (!sessionId) {
 		redirect("/");
@@ -229,13 +229,11 @@ async function SuccessPageContent({
 	return <OrderContent sessionId={sessionId} />;
 }
 
-export default function CheckoutSuccessPage({
-	searchParams,
-}: CheckoutSuccessPageProps) {
+export default function CheckoutSuccessPage(props: CheckoutSuccessPageProps) {
 	return (
 		<main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
 			<Suspense fallback={<OrderSkeleton />}>
-				<SuccessPageContent searchParams={searchParams} />
+				<SuccessPageContent {...props} />
 			</Suspense>
 		</main>
 	);

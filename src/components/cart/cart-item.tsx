@@ -3,7 +3,6 @@
 import { Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { removeFromCart, setCartQuantity } from "@/app/cart/actions";
 import type { CartLineItem } from "@/app/cart/types";
@@ -18,7 +17,6 @@ type CartItemProps = {
 };
 
 export function CartItem({ item }: CartItemProps) {
-	const router = useRouter();
 	const closeCart = useCart((state) => state.closeCart);
 	const remove = useCart((state) => state.remove);
 	const increase = useCart((state) => state.increase);
@@ -38,10 +36,9 @@ export function CartItem({ item }: CartItemProps) {
 		startTransition(async () => {
 			remove(productVariant.id);
 			const result = await removeFromCart(productVariant.id);
-			if (result) {
+			if (result?.success) {
 				sync(result.cart);
 			}
-			router.refresh();
 		});
 	};
 
@@ -49,10 +46,9 @@ export function CartItem({ item }: CartItemProps) {
 		startTransition(async () => {
 			increase(productVariant.id);
 			const result = await setCartQuantity(productVariant.id, quantity + 1);
-			if (result) {
+			if (result?.success) {
 				sync(result.cart);
 			}
-			router.refresh();
 		});
 	};
 
@@ -64,10 +60,9 @@ export function CartItem({ item }: CartItemProps) {
 		startTransition(async () => {
 			decrease(productVariant.id);
 			const result = await setCartQuantity(productVariant.id, quantity - 1);
-			if (result) {
+			if (result?.success) {
 				sync(result.cart);
 			}
-			router.refresh();
 		});
 	};
 

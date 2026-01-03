@@ -9,21 +9,23 @@ import { formatMoney } from "@/lib/money";
 
 const locale = DEFAULT_LOCALE;
 
-export default async function ProductPage({
-	params,
-}: {
+export default function ProductPage(props: {
 	params: Promise<{ slug: string }>;
 }) {
-	const { slug } = await params;
 	return (
 		<Suspense>
-			<ProductDetails slug={slug} />
+			<ProductDetails {...props} />
 		</Suspense>
 	);
 }
 
-const ProductDetails = async ({ slug }: { slug: string }) => {
+const ProductDetails = async ({
+	params,
+}: {
+	params: Promise<{ slug: string }>;
+}) => {
 	"use cache";
+	const { slug } = await params;
 	const product = await commerce.productGet({ idOrSlug: slug });
 
 	if (!product) {
