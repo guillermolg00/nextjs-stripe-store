@@ -28,8 +28,17 @@ async function seed() {
 		});
 
 		if (existing) {
-			console.log(`  ⏭️  Collection "${col.name}" already exists`);
+			await db
+				.update(collections)
+				.set({
+					name: col.name,
+					description: col.description,
+					image: col.image,
+					updatedAt: new Date(),
+				})
+				.where(eq(collections.id, existing.id));
 			collectionMap.set(col.slug, existing.id);
+			console.log(`  🔄 Updated collection "${col.name}"`);
 			continue;
 		}
 
@@ -53,26 +62,57 @@ async function seed() {
 
 		const existing = await db.query.products.findFirst({
 			where: eq(products.slug, slug),
+			with: {
+				variants: true,
+				productCollections: true,
+			},
 		});
+
+		let productId: string;
+		let isUpdate = false;
 
 		if (existing) {
-			console.log(`  ⏭️  Product "${product.name}" already exists`);
-			continue;
+			productId = existing.id;
+			isUpdate = true;
+
+			// Update product metadata
+			await db
+				.update(products)
+				.set({
+					name: product.name,
+					description: product.description,
+					summary: product.summary,
+					images: product.images,
+					syncStatus: "pending" as SyncStatus,
+					updatedAt: new Date(),
+				})
+				.where(eq(products.id, productId));
+			console.log(`  🔄 Updated product "${product.name}"`);
+
+			// Remove old collection links
+			await db
+				.delete(productCollections)
+				.where(eq(productCollections.productId, productId));
+
+			// Remove old variants (they'll be recreated)
+			await db
+				.delete(productVariants)
+				.where(eq(productVariants.productId, productId));
+		} else {
+			productId = randomUUID();
+
+			// Insert new product
+			await db.insert(products).values({
+				id: productId,
+				slug,
+				name: product.name,
+				description: product.description,
+				summary: product.summary,
+				images: product.images,
+				syncStatus: "pending" as SyncStatus,
+			});
+			console.log(`  ✅ Created product "${product.name}"`);
 		}
-
-		const productId = randomUUID();
-
-		// Insert product
-		await db.insert(products).values({
-			id: productId,
-			slug,
-			name: product.name,
-			description: product.description,
-			summary: product.summary,
-			images: product.images,
-			syncStatus: "pending" as SyncStatus,
-		});
-		console.log(`  ✅ Created product "${product.name}"`);
 
 		// Link to collections
 		for (const colSlug of product.collectionSlugs) {
@@ -100,7 +140,9 @@ async function seed() {
 				options: variant.options,
 				syncStatus: "pending" as SyncStatus,
 			});
-			console.log(`     🏷️  Created variant: ${optionLabel}`);
+			console.log(
+				`     🏷️  ${isUpdate ? "Recreated" : "Created"} variant: ${optionLabel}`,
+			);
 		}
 
 		// Sync to Stripe
