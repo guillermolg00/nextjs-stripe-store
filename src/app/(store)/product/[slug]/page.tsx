@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { AddToCartButton } from "@/components/product/add-to-cart-button";
-import { ProductFeatures } from "@/components/product/product-features";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { commerce } from "@/lib/commerce";
 import { DEFAULT_CURRENCY, DEFAULT_LOCALE } from "@/lib/constants";
@@ -80,10 +79,17 @@ const ProductDetails = async ({
 							images: product.images,
 						}}
 					/>
+
+					{product.description && (
+						<div className="space-y-4 border-t pt-8">
+							<h2 className="font-semibold text-xl">Product Description</h2>
+							<div className="prose prose-neutral max-w-none text-muted-foreground leading-relaxed">
+								{product.description}
+							</div>
+						</div>
+					)}
 				</div>
 			</div>
-
-			<ProductFeatures />
 		</div>
 	);
 };
