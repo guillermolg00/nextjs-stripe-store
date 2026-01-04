@@ -39,6 +39,7 @@
 		"@radix-ui/react-toggle-group": "^1.1.11",
 		"@radix-ui/react-tooltip": "^1.2.8",
 		"@typescript/native-preview": "7.0.0-dev.20251213.1",
+		"@vercel/analytics": "^1.6.1",
 		"@vercel/blob": "^2.0.0",
 		"better-auth": "1.4.6",
 		"class-variance-authority": "^0.7.1",
