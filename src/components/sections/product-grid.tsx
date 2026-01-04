@@ -40,15 +40,24 @@ export async function ProductGrid({
 					</h2>
 					<p className="mt-2 text-muted-foreground">{description}</p>
 				</div>
-				{showViewAll && (
+				<div className="hidden items-center gap-4 sm:flex">
 					<Link
-						href={viewAllHref}
-						className="hidden items-center gap-1 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground sm:inline-flex"
+						href="/categories"
+						className="inline-flex items-center gap-1 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
 					>
-						View all
+						Categories
 						<ArrowRight className="h-4 w-4" />
 					</Link>
-				)}
+					{showViewAll && (
+						<Link
+							href={viewAllHref}
+							className="inline-flex items-center gap-1 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
+						>
+							View all
+							<ArrowRight className="h-4 w-4" />
+						</Link>
+					)}
+				</div>
 			</div>
 
 			<div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -58,7 +67,14 @@ export async function ProductGrid({
 			</div>
 
 			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
+				<div className="mt-12 flex flex-col items-center gap-4 sm:hidden">
+					<Link
+						href="/categories"
+						className="inline-flex items-center gap-1 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
+					>
+						Browse categories
+						<ArrowRight className="h-4 w-4" />
+					</Link>
 					<Link
 						href={viewAllHref}
 						className="inline-flex items-center gap-1 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"

@@ -12,7 +12,7 @@ interface HeroProps {
 const Hero = ({ className }: HeroProps) => {
 	return (
 		<section className={cn("relative w-full p-0", className)}>
-			<div className="container mx-auto px-4 py-28 md:py-32">
+			<div className="container mx-auto px-4 pt-18 md:pt-22">
 				<div className="mx-auto flex max-w-5xl flex-col items-center">
 					<div className="z-10 mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
 						<div>
@@ -36,27 +36,27 @@ const Hero = ({ className }: HeroProps) => {
 							<p className="text-center text-muted-foreground text-sm">
 								Powering the next generation of digital products
 							</p>
-							<div className="grid grid-cols-3 place-items-center items-center justify-center gap-6 opacity-80 sm:grid-cols-6 sm:gap-4">
+							<div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-6 opacity-80">
 								<Image
 									src={ASSETS.logos.nextjs}
 									alt="Next.js"
 									width={100}
 									height={20}
-									className="h-5 w-auto dark:invert"
+									className="h-6 w-auto dark:invert"
 								/>
 								<Image
 									src={ASSETS.logos.stripe}
 									alt="Stripe"
 									width={80}
 									height={32}
-									className="h-8 w-auto"
+									className="h-9 w-auto"
 								/>
 								<Image
 									src={ASSETS.logos.vercel}
 									alt="Vercel"
 									width={100}
 									height={20}
-									className="h-5 w-auto dark:invert"
+									className="h-6 w-auto dark:invert"
 								/>
 								<Image
 									src={ASSETS.logos.shadcn}
@@ -70,14 +70,14 @@ const Hero = ({ className }: HeroProps) => {
 									alt="Tailwind CSS"
 									width={120}
 									height={20}
-									className="h-5 w-auto dark:hidden"
+									className="h-6 w-auto dark:hidden"
 								/>
 								<Image
 									src={ASSETS.logos.tailwind.dark}
 									alt="Tailwind CSS"
 									width={120}
 									height={20}
-									className="hidden h-5 w-auto dark:block"
+									className="hidden h-6 w-auto dark:block"
 								/>
 							</div>
 						</div>
