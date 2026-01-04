@@ -26,7 +26,7 @@ export function OrderCard({ order, locale = "en-US" }: OrderCardProps) {
 	const itemCount = order.items.reduce((acc, item) => acc + item.quantity, 0);
 
 	return (
-		<Link href={`/orders/${order.id}`}>
+		<Link href={`/orders/${order.id}`} prefetch={true}>
 			<Card className="cursor-pointer transition-colors hover:bg-muted/50">
 				<CardHeader className="pb-3">
 					<div className="flex items-center justify-between">

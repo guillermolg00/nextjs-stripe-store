@@ -24,7 +24,11 @@ export function CategoryGrid({ collections, className }: CategoryGridProps) {
 			)}
 		>
 			{collections.map((collection) => (
-				<Link key={collection.id} href={`/categories/${collection.slug}`}>
+				<Link
+					key={collection.id}
+					href={`/categories/${collection.slug}`}
+					prefetch={true}
+				>
 					<Card className="group h-full overflow-hidden border-none pt-0">
 						<CardHeader>
 							<div className="relative mb-2 aspect-video w-full overflow-hidden rounded-lg bg-muted">

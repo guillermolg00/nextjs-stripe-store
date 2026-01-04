@@ -35,7 +35,12 @@ export function ProductCard({ product }: { product: Product }) {
 	const secondaryImage = allImages[1];
 
 	return (
-		<Link key={product.id} href={`/product/${product.slug}`} className="group">
+		<Link
+			key={product.id}
+			href={`/product/${product.slug}`}
+			className="group"
+			prefetch={true}
+		>
 			<div className="relative mb-4 aspect-square overflow-hidden rounded-2xl bg-secondary">
 				{primaryImage && (
 					<Image

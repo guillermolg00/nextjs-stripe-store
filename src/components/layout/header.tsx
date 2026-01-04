@@ -19,12 +19,14 @@ async function NavLinks() {
 			<Link
 				href="/"
 				className="font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
+				prefetch={true}
 			>
 				Home
 			</Link>
 			<Link
 				href="/categories"
 				className="font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
+				prefetch={true}
 			>
 				Categories
 			</Link>
