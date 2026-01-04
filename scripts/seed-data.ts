@@ -27,36 +27,50 @@ export const collections: SeedCollection[] = [
 	{
 		name: "Organizers",
 		slug: "organizers",
+		image:
+			"https://mltbqy256fvxokxq.public.blob.vercel-storage.com/products/stow_organizer_2.jpg",
 		description: "Tech organizers and pouches for everyday carry",
 	},
 	{
 		name: "Cables",
 		slug: "cables",
+		image:
+			"https://mltbqy256fvxokxq.public.blob.vercel-storage.com/products/belt_watch_2.jpg",
 		description: "Premium cables and charging solutions",
 	},
 	{
 		name: "Accessories",
 		slug: "accessories",
+		image:
+			"https://mltbqy256fvxokxq.public.blob.vercel-storage.com/products/smart_hub_4.jpg",
 		description: "Tech accessories for your devices",
 	},
 	{
 		name: "iPad Sleeves",
 		slug: "ipad-sleeves",
+		image:
+			"https://mltbqy256fvxokxq.public.blob.vercel-storage.com/products/stow_slim_for_ipad_2.jpg",
 		description: "Premium protection for your iPad",
 	},
 	{
 		name: "Hubs & Adapters",
 		slug: "hubs-adapters",
+		image:
+			"https://mltbqy256fvxokxq.public.blob.vercel-storage.com/products/smart_hub_2.jpg",
 		description: "USB-C hubs and connectivity solutions",
 	},
 	{
 		name: "AirPods Cases",
 		slug: "airpods-cases",
+		image:
+			"https://mltbqy256fvxokxq.public.blob.vercel-storage.com/products/leather_case_for_airpods_2.jpg",
 		description: "Premium leather cases for AirPods",
 	},
 	{
 		name: "Chargers",
 		slug: "chargers",
+		image:
+			"https://mltbqy256fvxokxq.public.blob.vercel-storage.com/products/dock_wireless_charger_2.jpg",
 		description: "Wireless chargers and docks",
 	},
 ];
