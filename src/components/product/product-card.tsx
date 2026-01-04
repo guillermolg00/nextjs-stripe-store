@@ -39,7 +39,7 @@ export function ProductCard({ product }: { product: Product }) {
 			key={product.id}
 			href={`/product/${product.slug}`}
 			className="group"
-			prefetch={true}
+			prefetch
 		>
 			<div className="relative mb-4 aspect-square overflow-hidden rounded-2xl bg-secondary">
 				{primaryImage && (

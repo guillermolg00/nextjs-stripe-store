@@ -44,6 +44,7 @@ export async function ProductGrid({
 					<Link
 						href="/categories"
 						className="inline-flex items-center gap-1 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
+						prefetch
 					>
 						Categories
 						<ArrowRight className="h-4 w-4" />
@@ -52,6 +53,7 @@ export async function ProductGrid({
 						<Link
 							href={viewAllHref}
 							className="inline-flex items-center gap-1 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
+							prefetch
 						>
 							View all
 							<ArrowRight className="h-4 w-4" />
