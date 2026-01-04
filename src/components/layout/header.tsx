@@ -1,9 +1,7 @@
 import { ShoppingCartIcon } from "lucide-react";
-import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
 import { CartButton } from "@/components/cart/cart-button";
-import { commerce } from "@/lib/commerce";
 import { SITE_NAME } from "@/lib/constants";
 import { NavUser, NavUserFallback } from "./nav-user";
 
@@ -16,11 +14,6 @@ function CartButtonFallback() {
 }
 
 async function NavLinks() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
 	return (
 		<nav className="hidden items-center gap-6 md:flex">
 			<Link
@@ -29,15 +22,12 @@ async function NavLinks() {
 			>
 				Home
 			</Link>
-			{collections.data.map((collection) => (
-				<Link
-					key={collection.id}
-					href={`/category/${collection.slug}`}
-					className="font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
-				>
-					{collection.name}
-				</Link>
-			))}
+			<Link
+				href="/categories"
+				className="font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
+			>
+				Categories
+			</Link>
 		</nav>
 	);
 }

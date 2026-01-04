@@ -534,7 +534,7 @@ export async function updateCollection(
 			.where(eq(collections.id, id));
 
 		revalidatePath("/");
-		revalidatePath(`/category/${newSlug}`);
+		revalidatePath(`/categories/${newSlug}`);
 
 		return { success: true };
 	} catch (error) {
