@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
-import { OrderDetails } from "@/components/orders/order-details";
+import { OrderSummary } from "@/components/orders/order-summary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -36,21 +36,13 @@ async function OrderContent({ orderId }: { orderId: string }) {
 		notFound();
 	}
 
-	return <OrderDetails order={order} locale={locale} />;
+	return <OrderSummary order={order} locale={locale} />;
 }
 
 function OrderSkeleton() {
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center justify-between">
-				<div className="space-y-2">
-					<Skeleton className="h-8 w-48" />
-					<Skeleton className="h-4 w-32" />
-				</div>
-				<Skeleton className="h-6 w-20" />
-			</div>
-
-			<div className="grid gap-6 lg:grid-cols-3">
+			<div className="grid gap-6 lg:grid-cols-2">
 				<Card className="lg:col-span-2">
 					<CardHeader>
 						<Skeleton className="h-6 w-32" />
@@ -73,6 +65,18 @@ function OrderSkeleton() {
 					</CardContent>
 				</Card>
 
+				<div className="space-y-6">
+					<Card>
+						<CardHeader>
+							<Skeleton className="h-6 w-32" />
+						</CardHeader>
+						<CardContent className="space-y-3">
+							<Skeleton className="h-4 w-full" />
+							<Skeleton className="h-4 w-full" />
+							<Skeleton className="h-4 w-full" />
+						</CardContent>
+					</Card>
+				</div>
 				<div className="space-y-6">
 					<Card>
 						<CardHeader>

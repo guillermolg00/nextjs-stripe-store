@@ -1,10 +1,7 @@
-import { Package, ShoppingBag } from "lucide-react";
 import { headers } from "next/headers";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { OrderHistory } from "@/components/order-history";
-import { Button } from "@/components/ui/button";
+import { OrderHistory } from "@/components/orders/order-history";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { auth } from "@/lib/auth";
@@ -20,28 +17,6 @@ async function OrdersList() {
 	}
 
 	const orders = await getOrdersByUser(session.user.id);
-
-	if (orders.length === 0) {
-		return (
-			<Card>
-				<CardContent className="py-12 text-center">
-					<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-						<Package className="h-8 w-8 text-muted-foreground" />
-					</div>
-					<h2 className="mb-2 font-semibold text-xl">No orders yet</h2>
-					<p className="mb-6 text-muted-foreground">
-						When you make a purchase, your orders will appear here.
-					</p>
-					<Button asChild>
-						<Link href="/">
-							<ShoppingBag className="mr-2 h-4 w-4" />
-							Start Shopping
-						</Link>
-					</Button>
-				</CardContent>
-			</Card>
-		);
-	}
 
 	return (
 		<div className="space-y-4">

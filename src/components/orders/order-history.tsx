@@ -3,6 +3,7 @@
 import { format } from "date-fns";
 import { ChevronRight, Package, Search } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
@@ -12,42 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { OrderWithItems } from "@/lib/orders";
 import { cn } from "@/lib/utils";
-
-const statusConfig: Record<
-	OrderWithItems["status"],
-	{ label: string; color: string; dotColor: string }
-> = {
-	pending: {
-		label: "Processing",
-		color: "text-amber-600",
-		dotColor: "bg-amber-500",
-	},
-	paid: {
-		label: "In Transit",
-		color: "text-blue-600",
-		dotColor: "bg-blue-500",
-	},
-	fulfilled: {
-		label: "Delivered",
-		color: "text-emerald-600",
-		dotColor: "bg-emerald-500",
-	},
-	refunded: {
-		label: "Returned",
-		color: "text-muted-foreground",
-		dotColor: "bg-muted-foreground",
-	},
-	cancelled: {
-		label: "Cancelled",
-		color: "text-red-600",
-		dotColor: "bg-red-500",
-	},
-	partially_refunded: {
-		label: "Partially Refunded",
-		color: "text-purple-600",
-		dotColor: "bg-purple-500",
-	},
-};
+import { OrderStatusBadge } from "./order-status-badge";
 
 interface OrderHistory5Props {
 	orders?: OrderWithItems[];
@@ -83,18 +49,8 @@ const OrderHistory = ({ orders = [], className }: OrderHistory5Props) => {
 	});
 
 	return (
-		<section className={cn("py-16 md:py-24", className)}>
+		<section className={cn("pb-16 md:pb-24", className)}>
 			<div className="container max-w-4xl">
-				{/* Header */}
-				<div className="mb-8">
-					<h1 className="font-semibold text-2xl tracking-tight md:text-3xl">
-						Your Orders
-					</h1>
-					<p className="mt-1 text-muted-foreground">
-						Track, return, or buy items again
-					</p>
-				</div>
-
 				{/* Filters */}
 				<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 					<Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -120,8 +76,6 @@ const OrderHistory = ({ orders = [], className }: OrderHistory5Props) => {
 				{/* Orders */}
 				<div className="space-y-6">
 					{filteredOrders.map((order) => {
-						const status = statusConfig[order.status];
-
 						return (
 							<Card
 								key={order.id}
@@ -144,13 +98,7 @@ const OrderHistory = ({ orders = [], className }: OrderHistory5Props) => {
 												{format(new Date(order.createdAt), "PPP")}
 											</p>
 										</div>
-										<Separator orientation="vertical" className="h-8" />
-										<div>
-											<p className="text-muted-foreground text-xs">
-												Order number
-											</p>
-											<p className="font-medium text-sm">{order.id}</p>
-										</div>
+
 										<Separator orientation="vertical" className="h-8" />
 										<div>
 											<p className="text-muted-foreground text-xs">Total</p>
@@ -160,12 +108,7 @@ const OrderHistory = ({ orders = [], className }: OrderHistory5Props) => {
 										</div>
 									</div>
 									<div className="flex items-center gap-2">
-										<span
-											className={cn("size-2 rounded-full", status.dotColor)}
-										/>
-										<span className={cn("font-medium text-sm", status.color)}>
-											{status.label}
-										</span>
+										<OrderStatusBadge status={order.status} />
 									</div>
 								</div>
 
@@ -182,6 +125,8 @@ const OrderHistory = ({ orders = [], className }: OrderHistory5Props) => {
 															src={item.productImage!}
 															alt={item.productName}
 															className="size-full object-cover"
+															width={112}
+															height={112}
 														/>
 													</AspectRatio>
 												</div>
@@ -212,14 +157,16 @@ const OrderHistory = ({ orders = [], className }: OrderHistory5Props) => {
 
 								{/* Order Footer */}
 								<div className="flex items-center justify-between border-t bg-muted/20 px-5 py-3">
-									<Button
-										variant="link"
-										size="sm"
-										className="h-auto p-0 text-foreground"
-									>
-										View order details
-										<ChevronRight className="ml-1 size-4" />
-									</Button>
+									<Link href={`/orders/${order.id}`}>
+										<Button
+											variant="link"
+											size="sm"
+											className="h-auto p-0 text-foreground"
+										>
+											View order details
+											<ChevronRight className="ml-1 size-4" />
+										</Button>
+									</Link>
 									<Button variant="ghost" size="sm">
 										Need Help?
 									</Button>

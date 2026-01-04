@@ -4,7 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { ClearCartEffect } from "@/components/checkout/clear-cart-effect";
-import { OrderDetails } from "@/components/orders/order-details";
+import { OrderSummary } from "@/components/orders/order-summary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -156,7 +156,7 @@ async function OrderContent({ sessionId }: { sessionId: string }) {
 				</CardContent>
 			</Card>
 
-			<OrderDetails order={order} locale={locale} />
+			<OrderSummary order={order} locale={locale} />
 
 			<div className="flex flex-col justify-center gap-3 sm:flex-row">
 				<Button asChild variant="outline">
