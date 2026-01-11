@@ -26,7 +26,7 @@ const Hero = ({ className }: HeroProps) => {
 
 						<div className="mt-6 flex items-center gap-4">
 							<Button asChild>
-								<Link href="https://github.com/nextjs-stripe-store">
+								<Link href="https://github.com/guillermolg00/nextjs-stripe-store">
 									<Github className="mr-2 h-4 w-4" />
 									Github
 								</Link>
